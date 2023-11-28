@@ -1,0 +1,388 @@
+﻿@page "/RegistroCitas";
+@page "/RegistroCitas/{CitaId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@attribute [Authorize(Roles = "Administrador, Colaborador")]
+
+<EditForm Model="citas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <img src="zyroimage.png" class="img-logo" />
+            <h1>Registro Citas</h1>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <label>Cita ID:</label>
+                <div class="input-group col-md-6">
+                    <InputNumber @bind-Value="citas.CitaId" class="id-input"></InputNumber>
+                    <button type="button" class="btn btn-dark oi oi-magnifying-glass" @onclick="Buscar"></button>
+                </div>
+                <div class="col-md-6">
+                    <label>Colaborador Id:</label>
+                    <InputNumber @bind-Value="citas.ColaboradorId" class="form-control"></InputNumber>
+                    <ValidationMessage For="@(() => citas.ColaboradorId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Fecha:</label>
+                    <InputDate @bind-Value="citas.Fecha" class="form-control"></InputDate>
+                    <ValidationMessage For="@(() => citas.Fecha)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Servicios:</label>
+                    <InputText @bind-Value="citas.Asunto" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => citas.Asunto)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Cliente Id:</label>
+                    <InputNumber @bind-Value="citas.ClienteId" class="form-control"></InputNumber>
+                    <ValidationMessage For="@(() => citas.ClienteId)" />
+                </div>
+            </div>
+        </div>
+        @*Detalles:*@
+        <div class="card card-header">
+            <h3>Productos utilizados</h3>
+        </div>
+        <div class="card-body border border-1">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Producto</label>
+                    <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var p in ListaProductos)
+                        {
+                            <option value="@p.ProductoId">@p.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Detalles.ProductoId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Cantidad</label>
+                    <div class="input-group">
+                        <InputNumber @bind-Value="Detalles.CantidadUtilizada" class="form-control"></InputNumber>
+                        <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                        <ValidationMessage For="@(() => Detalles.CantidadUtilizada)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class='table table-responsive table-striped'>
+            <thead>
+                <tr>
+                    <th>Producto Id</th>
+                    <th>Nombre</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in citas.CitasDetalles)
+                {
+                    <tr>
+                        <td>@detalle.ProductoId</td>
+                        <td>@ObtenerNombre(detalle.ProductoId)</td>
+                        <td>@ObtenerDescripción(detalle.ProductoId)</td>
+                        <td>@detalle.CantidadUtilizada</td>
+                        <td>@ObtenerPrecio(detalle.ProductoId)</td>
+                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                    </tr>
+                }
+                <tr>
+                    <td>Monto Total:$ @MontoT </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+    [Parameter]
+
+    public int CitaId { get; set; }
+    public Citas citas { get; set; } = new Citas();
+    public CitasDetalles Detalles { get; set; } = new CitasDetalles();
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<CitasDetalles> DetallesRemovidos { get; set; } = new List<CitasDetalles>();
+    public List<CitasDetalles> ListaDetalles { get; set; } = new List<CitasDetalles>();
+
+    public float MontoT { get; set; } = 0;
+    public bool idVacio;
+    public bool cantidadCero;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        if (CitaId > 0)
+        {
+            this.citas.CitaId = CitaId;
+            await Buscar();
+        }
+    }
+
+    private async Task<Citas> BuscarEntrada(int CitaId)
+    {
+        Citas Citas = new Citas();
+        var entradaEncontrada = await httpClient.GetFromJsonAsync<Citas>($"api/Citas/{CitaId}");
+        if (entradaEncontrada != null)
+            return Citas = entradaEncontrada;
+        return new Citas();
+    }
+
+    public string ObtenerDescripción(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Descripción!;
+    }
+
+    public string ObtenerNombre(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Nombre!;
+    }
+
+    public float ObtenerPrecio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio;
+    }
+
+    public async Task Buscar()
+    {
+        ListaDetalles = new List<CitasDetalles>();
+        DetallesRemovidos = new List<CitasDetalles>();
+        var entradaIdEncontrada = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!
+        .ToList()
+        .Any(e => e.CitaId == citas.CitaId);
+        if (entradaIdEncontrada)
+        {
+            var entradaEncontrada = await httpClient.GetFromJsonAsync<Citas>($"api/Citas/{citas.CitaId}");
+            if (entradaEncontrada != null)
+            {
+                this.citas = entradaEncontrada;
+                MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se encontro ninguna cita",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+    }
+
+    public async Task Guardar()
+    {
+        citas.Monto = MontoT;
+        if (citas.CitaId < 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La CitaId no puede ser Negativa.",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        if (citas.CitasDetalles.Count == 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se puede guardar una cita sin producto utilizados.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        using var response = await httpClient.PostAsJsonAsync("api/Citas", citas);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo Guardar correctamente, verifique los campos",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var entradaDevuelta = await response.Content.ReadFromJsonAsync<Citas>();
+        if (entradaDevuelta is not null)
+        {
+            if (DetallesRemovidos.Count > 0)
+            {
+                foreach (var detalle in DetallesRemovidos)
+                {
+                    await httpClient.DeleteAsync($"api/Citas/DeleteDetalles/{detalle.DetalleId}");
+                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
+                    reducir!.Existencia = reducir.Existencia + detalle.CantidadUtilizada;
+                    using var responseDetalleEliminado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
+                }
+            }
+            if (ListaDetalles.Count > 0)
+            {
+                foreach (var detalle in ListaDetalles)
+                {
+                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
+                    reducir!.Existencia = reducir.Existencia - detalle.CantidadUtilizada;
+                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
+                }
+            }
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "cita Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            citas = entradaDevuelta;
+            StateHasChanged();
+            this.Nuevo();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.citas = new Citas();
+        this.Detalles = new CitasDetalles();
+        DetallesRemovidos = new List<CitasDetalles>();
+        ListaDetalles = new List<CitasDetalles>();
+        MontoT = 0;
+    }
+
+    public async Task Eliminar()
+    {
+        var detallesEliminados = new List<CitasDetalles>(citas.CitasDetalles);
+        using var response = await httpClient.DeleteAsync($"api/Citas/{citas.CitaId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La cita no fue Eliminada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "cita Eliminada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+
+            foreach (var detalle in detallesEliminados)
+            {
+                var productos = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
+                if (productos != null)
+                {
+                    productos.Existencia += detalle.CantidadUtilizada;
+                    await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{productos.ProductoId}", productos);
+                }
+            }
+
+
+        }
+        Nuevo();
+    }
+
+    public bool Validar()
+    {
+        idVacio = (Detalles.ProductoId <= 0);
+        cantidadCero = (Detalles.CantidadUtilizada <= 0);
+        return idVacio || cantidadCero;
+    }
+
+    public async Task AgregarDetalle()
+    {
+        if (Validar())
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Llene los campos del detalle Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var producto = await BuscarProductos(Detalles.ProductoId);
+        if (producto != null)
+        {
+            if (Detalles.CantidadUtilizada > producto.Existencia)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = $"No hay suficiente cantidad de {producto.Descripción} en el inventario ({producto.Existencia})",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+        }
+
+        if (citas != null)
+        {
+            Detalles.CitaId = citas.CitaId;
+            citas.CitasDetalles.Add(Detalles);
+            ListaDetalles.Add(Detalles);
+            if (DetallesRemovidos.Any(d => d.DetalleId == Detalles.DetalleId))
+                DetallesRemovidos.Remove(Detalles);
+            Detalles = new CitasDetalles();
+            MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+
+        }
+        StateHasChanged();
+    }
+
+    public void RemoverDetalle(CitasDetalles detalle)
+    {
+        Detalles = detalle;
+        citas.CitasDetalles.Remove(detalle);
+        DetallesRemovidos.Add(detalle);
+        if (ListaDetalles.Any(d => d.DetalleId == detalle.DetalleId))
+            ListaDetalles.Remove(detalle);
+        MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+        StateHasChanged();
+    }
+
+    private async Task<Productos> BuscarProductos(int ProductoId)
+    {
+        var producto = await httpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}");
+
+        return producto ?? new Productos();
+    }
+}

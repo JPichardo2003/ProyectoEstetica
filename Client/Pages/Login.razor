@@ -1,0 +1,71 @@
+﻿@page "/"
+@using System.Net;
+@layout LoginLayout
+
+@inject HttpClient httpClient
+@inject AuthenticationStateProvider autenticacionProvider
+@inject NavigationManager navManager
+@inject NotificationService notificationService
+
+
+<EditForm Model="login">
+    <div class="row mt-5">
+
+        <div class="col-lg-4 offset-lg-4 border">
+
+            <div class="card-header d-flex align-items-center">
+                <h1 class="text-center">LOGIN</h1><br />
+                <img src="zyroimage.png" class="img-logo" />
+            </div>
+
+            <div class="mb-3">
+                <label>Correo</label>
+                <InputText type="email" @bind-Value="login.Correo" class="form-control"></InputText>
+            </div>
+
+            <div class="mb-3">
+                <label>Contraseña</label>
+                <InputText type="password" @bind-Value="login.Clave" class="form-control" ></InputText>
+            </div>
+
+            <div class="mb-3 text-center">
+                <button @onclick="IniciarSesion" class="btn btn-primary text-center">Login</button>
+            </div>
+
+        </div>
+        <div class="text-center"></div>
+    </div>
+</EditForm>
+
+
+
+@code {
+    private LoginAMS login = new LoginAMS();
+    private async Task IniciarSesion()
+    {
+        var loginResponse = await httpClient.PostAsJsonAsync<LoginAMS>("/api/Usuario/Login", login);
+        if (loginResponse.IsSuccessStatusCode)
+        {
+            var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionAMS>();
+            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+            await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
+
+            navManager.NavigateTo("/Index");
+
+        }
+        if (loginResponse.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = loginResponse.Content.ReadAsStringAsync().Result,
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+
+        }
+    }
+
+}
+

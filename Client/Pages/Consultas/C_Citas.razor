@@ -1,0 +1,201 @@
+﻿@page "/ConsultaCitas";
+@inject HttpClient httpClient
+
+<div class="card-header row">
+    <div class="col-md-4">
+        <label>Desde: </label>
+        <InputDate @bind-Value="Desde" class="form-control id-input"></InputDate>
+    </div>
+    <div class="col-md-4">
+        <label>Hasta: </label>
+        <InputDate @bind-Value="Hasta" class="form-control id-input"></InputDate>
+    </div>
+    <label>Filtrar Por:</label>
+    <div class="col-md-6 input-group filter-input">
+        <InputSelect @bind-Value="Filtro" class="form-select">
+            <option value="1">Citas Id</option>
+            <option value="2">ClienteId</option>
+            <option value="3">ColaboradorId</option>
+            <option value="4">Asunto</option>
+            <option value="5">Monto</option>
+        </InputSelect>
+        <div class="input-group-append">
+            <button type="button" class="btn btn-dark oi oi-magnifying-glass" @onclick="Buscar"></button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        @switch (Filtro)
+        {
+            case 1:
+                <InputNumber @bind-Value="citas!.CitaId" class="form-control"></InputNumber>
+                break;
+            case 2:
+                <InputNumber @bind-Value="citas!.ClienteId" class="form-control"></InputNumber>
+                break;
+            case 3:
+                <InputNumber @bind-Value="citas!.ColaboradorId" class="form-control"></InputNumber>
+                break;
+            case 4:
+                <InputText @bind-Value="citas!.Asunto" class="form-control"></InputText>
+                break;
+            case 5:
+                <InputNumber @bind-Value="citas!.Monto" class="form-control"></InputNumber>
+                break;
+        }
+    </div>
+</div>
+
+@if (Citas is not null)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Cita ID</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Colaborador</th>
+                    <th>Asunto</th>
+                    <th>Monto</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Citas in Citas)
+                {
+                    <tr>
+                        <td>@Citas.CitaId</td>
+                        <td>@Citas.Fecha.ToString("MM/dd/yyyy")</td>
+                        <td>@Citas.Fecha.ToString("hh:mm:ss")</td>
+                        <td>@ObtenerNombreCliente(Citas.ClienteId)</td>
+                        <td>@ObtenerNombreColaborador(Citas.ColaboradorId)</td>
+                        <td>@Citas.Asunto</td>
+                        <td>@Citas.Monto</td>
+                        <td><a href="RegistroCitas/@Citas.CitaId">Ver</a></td>
+                    </tr>
+                }
+                <tr>
+                    <td>Conteo: @Conteo</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total: @TotalPesos</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+
+@code {
+
+    public int Filtro { get; set; }
+    public List<Citas>? Citas { get; set; }
+    public Citas? citas { get; set; } = new Citas();
+    public int Conteo { get; set; }
+    public float TotalPesos { get; set; }
+    public List<Colaboradores> ListaColaboradores { get; set; } = new List<Colaboradores>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+
+
+    public DateTime Desde { get; set; }
+    public DateTime Hasta { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+        var colaboradores = await httpClient.GetFromJsonAsync<List<Colaboradores>>("api/Colaboradores");
+
+        if(clientes is not null)
+        {
+            ListaClientes = clientes;
+        }
+        if (colaboradores is not null)
+        {
+            ListaColaboradores = colaboradores;
+        }
+
+        await Buscar();
+        Desde = DateTime.Now.AddMonths(-1);
+        Hasta = DateTime.Now;
+    }
+
+    public async Task Buscar()
+    {
+        if (Filtro == 1 && citas!.CitaId > 0)
+        {
+            Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!.Where(t => t.CitaId == citas!.CitaId && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date).ToList();
+            StateHasChanged();
+        }
+        else
+        if (Filtro == 2 && citas!.ClienteId > 0)
+        {
+            Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!.Where(t => t.ClienteId == citas!.ClienteId && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date).ToList();
+            StateHasChanged();
+            // var conceptoBusqueda = citas!.Concepto.ToLower();
+            // Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!
+            //     .Where(t => t.Concepto != null && t.Concepto.ToLower().Contains(conceptoBusqueda) && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+            //     .ToList();
+            // StateHasChanged();
+        }
+        else
+        if (Filtro == 3 && citas!.ColaboradorId > 0)
+        {
+            Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!.Where(t => t.ColaboradorId == citas!.ColaboradorId && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date).ToList();
+            StateHasChanged();
+
+
+            // var pesoMinimo = citas.PesoTotal;
+            // var pesoMaximo = citas.PesoTotal + 99; // Rango de 100
+            // Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!
+            //     .Where(t => t.PesoTotal >= pesoMinimo && t.PesoTotal <= pesoMaximo && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+            //     .ToList();
+            // StateHasChanged();
+        }
+        else
+        if (Filtro == 4 && !string.IsNullOrEmpty(citas!.Asunto))
+        {
+            var conceptoBusqueda = citas!.Asunto.ToLower();
+            Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!
+                 .Where(t => t.Asunto != null && t.Asunto.ToLower().Contains(conceptoBusqueda) && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                 .ToList();
+             StateHasChanged();
+        }
+        else
+        if (Filtro == 5 && citas!.Monto > 0)
+        {
+            var pesoMinimo = citas.Monto;
+            var pesoMaximo = citas.Monto + 99; // Rango de 100
+            Citas = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!
+                 .Where(t => t.Monto >= pesoMinimo && t.Monto <= pesoMaximo && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                 .ToList();
+             StateHasChanged();
+        }
+        else
+        {
+            Citas = await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas");
+            StateHasChanged();
+        }
+        Conteo = Citas != null ? Citas!.Count() : 0;
+        TotalPesos = Citas != null ? Citas!.Sum(p => p.Monto) : 0;
+    }
+
+    public string ObtenerNombreColaborador(int Id)
+    {
+        var empleado = ListaColaboradores.FirstOrDefault(p => p.ColaboradorId == Id);
+        return empleado?.Nombre ?? "Nombre no encontrado";
+    }
+    public string ObtenerNombreCliente(int Id)
+    {
+        var empleado = ListaColaboradores.FirstOrDefault(p => p.ColaboradorId == Id);
+        return empleado?.Nombre ?? "Nombre no encontrado";
+    }
+
+}
+
+

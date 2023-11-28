@@ -1,0 +1,194 @@
+﻿@page "/RegistroColaborador";
+@page "/RegistroColaborador/{ColaboradorId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@attribute [Authorize(Roles = "Administrador")]
+
+<EditForm Model="colaborador" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <img src="zyroimage.png" class="img-logo" />
+            <h1>Registro de Colaboradores</h1>
+        </div>
+        <div class="card-body">
+            <label>ID:</label>
+            <div class="input-group">
+                <InputNumber @bind-Value="colaborador.ColaboradorId" class="id-input"></InputNumber>
+                <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Nombre:</label>
+                    <InputText @bind-Value="colaborador.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Nombre)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Apellido:</label>
+                    <InputText @bind-Value="colaborador.Apellido" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Apellido)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Email:</label>
+                    <InputText type="email" @bind-Value="colaborador.Email" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Email)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Contraseña:</label>
+                    <InputText @bind-Value="colaborador.Clave" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Clave)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Dirección:</label>
+                    <InputText @bind-Value="colaborador.Dirección" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Dirección)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Teléfono:</label>
+                    <InputText @bind-Value="colaborador.Teléfono" class="form-control" placeholder="Ej: 8095877789"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Teléfono)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Celular:</label>
+                    <InputText @bind-Value="colaborador.Celular" class="form-control" placeholder="Ej: 8295877789"></InputText>
+                    <ValidationMessage For="@(() => colaborador.Celular)" />
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+        </div>
+    </div>
+</EditForm>
+
+
+@code
+{
+    [Parameter]
+
+    public int ColaboradorId { get; set; }
+
+    public Colaboradores colaborador { get; set; } = new Colaboradores();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ColaboradorId > 0)
+        {
+            this.colaborador.ColaboradorId = ColaboradorId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var empleadoIdEncontrado = (await httpClient.GetFromJsonAsync<List<Colaboradores>>($"api/Colaboradores"))!
+        .ToList()
+        .Any(c => c.ColaboradorId == colaborador.ColaboradorId);
+        if (empleadoIdEncontrado)
+        {
+            var empleadoEncontrado = await httpClient.GetFromJsonAsync<Colaboradores>($"api/Colaboradores/{colaborador.ColaboradorId}");
+            if (empleadoEncontrado != null)
+            {
+                this.colaborador = empleadoEncontrado;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se encontro ningun Colaborador",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Colaboradores", colaborador);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = response.Content.ReadAsStringAsync().Result,
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "No es posible Guardar",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+        }
+        var empleadoDevuelto = await response.Content.ReadFromJsonAsync<Colaboradores>();
+        if (empleadoDevuelto is not null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Validacion",
+                    Detail = "Colaborador Guardado Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            colaborador = empleadoDevuelto;
+            this.Nuevo();
+            StateHasChanged();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.colaborador = new Colaboradores();
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Colaboradores/{colaborador.ColaboradorId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No es posible Eliminar",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Validacion",
+                    Detail = "Colaborador Eliminado Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+
+        }
+        Nuevo();
+    }
+}
+

@@ -1,0 +1,13 @@
+﻿@page "/Index"
+@attribute [Authorize]
+<PageTitle>Index</PageTitle>
+
+<h1>Hola Mundo!</h1>
+
+Bienvenid@s a nuestra nueva app Mirror Magic.
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Bienvenido @context.User.Identity!.Name</h1>
+    </Authorized>
+</AuthorizeView>
