@@ -82,11 +82,24 @@
                 @foreach (var detalle in citas.CitasDetalles)
                 {
                     <tr>
+                        @if (detalle.ProductoId > 0)
+                        {
+                            var imagen = ObtenerImagen(detalle.ProductoId);
+                            if (imagen != null)
+                            {
+                                var base64 = Convert.ToBase64String(imagen);
+                                <img src="data:image/jpeg;base64,@base64" alt="Imagen del producto" width="260px" height="160px" />
+                            }
+                            else
+                            {
+                                <p>No hay imagen disponible para este producto.</p>
+                            }
+                        }
                         <td>@detalle.ProductoId</td>
                         <td>@ObtenerNombre(detalle.ProductoId)</td>
                         <td>@ObtenerDescripción(detalle.ProductoId)</td>
                         <td>@detalle.CantidadUtilizada</td>
-                        <td>@ObtenerPrecio(detalle.ProductoId)</td>
+                        <td>@ObtenerPrecio(detalle.ProductoId)$</td>
                         <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
                     </tr>
                 }
@@ -142,6 +155,14 @@
             return Citas = entradaEncontrada;
         return new Citas();
     }
+
+    public byte[] ObtenerImagen(int productoId)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == productoId);
+
+        return producto?.Imagen!;
+    }
+
 
     public string ObtenerDescripción(int Id)
     {
@@ -385,4 +406,6 @@
 
         return producto ?? new Productos();
     }
+
+
 }

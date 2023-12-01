@@ -15,5 +15,6 @@ namespace AguaMariaSolution.Shared.Models
         public string? Descripción { get; set; }
         public float Existencia { get; set; }
         public float Precio { get; set; }
+        public byte[]? Imagen { get; set; }
     }
 }
