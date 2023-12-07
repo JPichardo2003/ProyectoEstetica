@@ -33,11 +33,7 @@
                     <InputText type="email" @bind-Value="colaborador.Email" class="form-control"></InputText>
                     <ValidationMessage For="@(() => colaborador.Email)" />
                 </div>
-                <div class="col-md-6">
-                    <label>Contraseña:</label>
-                    <InputText @bind-Value="colaborador.Clave" class="form-control"></InputText>
-                    <ValidationMessage For="@(() => colaborador.Clave)" />
-                </div>
+
                 <div class="col-md-6">
                     <label>Dirección:</label>
                     <InputText @bind-Value="colaborador.Dirección" class="form-control"></InputText>
@@ -52,6 +48,13 @@
                     <label>Celular:</label>
                     <InputText @bind-Value="colaborador.Celular" class="form-control" placeholder="Ej: 8295877789"></InputText>
                     <ValidationMessage For="@(() => colaborador.Celular)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Activo</label>
+                    <InputSelect @bind-Value=colaborador.Activo>
+                        <option value="true">Si</option>
+                        <option value="false">No</option>
+                    </InputSelect>
                 </div>
             </div>
         </div>

@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace AguaMariaSolution.Shared.Models
 {
-    public class Colaboradores
+    public class Empleados
     {
         [Key]
-        public int ColaboradorId { get; set; }
+        public int EmpleadoId { get; set; }
 
         [Required(ErrorMessage = "Campo Obligatorio")]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Este campo no acepta digitos")]
@@ -27,21 +27,15 @@ namespace AguaMariaSolution.Shared.Models
         [Required(ErrorMessage = "Campo Obligatorio")]
         public string? Dirección { get; set; }
 
+        [Required(ErrorMessage = "Campo Obligatorio")]
+        public string? Clave { get; set; }
+
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Ingrese el telefono correctamente, Ejemplo: 8094587412")]
+        [Required(ErrorMessage = "Campo Obligatorio")]
         public string? Teléfono { get; set; }
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Ingrese el Celular correctamente, Ejemplo: 8294587412")]
-
         [Required(ErrorMessage = "Campo Obligatorio")]
         public string? Celular { get; set; }
-
-        public bool Activo { get; set; } = true;
-
-        [ForeignKey("TipoDeTrabajoId")]
-        public ICollection<TiposDeTrabajos> TipoDeTrabajo { get; set; } = new List<TiposDeTrabajos>();
-
-        [ForeignKey("ColaboradorId")]
-        public ICollection<Citas> Citas { get; set; } = new List<Citas>();
-
     }
 
 }

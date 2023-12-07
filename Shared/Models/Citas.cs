@@ -19,6 +19,11 @@ namespace AguaMariaSolution.Shared.Models
         public string? Asunto { get; set; }
         public float Monto { get; set; }
 
+        public bool Llego { get; set; } = true;
+
+        [ForeignKey("TipoDeTrabajoId")]
+        public ICollection<TiposDeTrabajos> TipoDeTrabajo { get; set; } = new List<TiposDeTrabajos>();
+
         [ForeignKey("CitaId")]
         public ICollection<CitasDetalles> CitasDetalles { get; set; } = new List<CitasDetalles>();
     }

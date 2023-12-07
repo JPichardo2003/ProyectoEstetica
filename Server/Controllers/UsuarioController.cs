@@ -21,48 +21,57 @@ namespace AguaMariaSolution.Server.Controllers
         {
             SesionAMS sesionAMS = new SesionAMS();
 
-            if (login.Correo == "julio@admin.com" && login.Clave == "admin" || login.Correo == "abraham@admin.com" && login.Clave == "admin" || login.Correo == "luis@admin.com" && login.Clave == "admin")
+            if (login.Correo == "A" && login.Clave == "A")
             {
-                sesionAMS.Nombre = "admin";
+                sesionAMS.Nombre = "PAPADIO";
+                sesionAMS.Correo = "PAPADIO@CIELO.GOD";
+                sesionAMS.Rol = "Administrador";
+                return StatusCode(StatusCodes.Status200OK, sesionAMS);
+            }
+            if (login.Correo == "Ae" && login.Clave == "A")
+            {
+                sesionAMS.Nombre = "PAPADIOEMPLEADO";
+                sesionAMS.Correo = "PAPADIO@EMPLEADO.GOD";
+                sesionAMS.Rol = "Empleado";
+                return StatusCode(StatusCodes.Status200OK, sesionAMS);
+            }
+            if (login.Correo == "e" && login.Clave == "A")
+            {
+                sesionAMS.Nombre = "PAPADIOEMPLEADO";
+                sesionAMS.Correo = "PAPADIO@EMPLEADO.GOD";
+                sesionAMS.Rol = "Cliente";
+                return StatusCode(StatusCodes.Status200OK, sesionAMS);
+            }
+            var adminEncontrado = await _context.Admins.FirstOrDefaultAsync(e => e.Email == login.Correo);
+
+            if (adminEncontrado != null && login.Clave == adminEncontrado.Contraseña)
+            {
+                sesionAMS.Nombre = adminEncontrado.Nombre;
                 sesionAMS.Correo = login.Correo;
                 sesionAMS.Rol = "Administrador";
                 return StatusCode(StatusCodes.Status200OK, sesionAMS);
             }
 
-            var colaboradorEncontrado = await _context.Colaboradores.FirstOrDefaultAsync(e => e.Email == login.Correo);
-            if (colaboradorEncontrado != null && colaboradorEncontrado.Clave == login.Clave)
-            {
-                sesionAMS.Nombre = colaboradorEncontrado.Nombre;
-                sesionAMS.Correo = login.Correo;
-                sesionAMS.Rol = "Colaborador";
-                return StatusCode(StatusCodes.Status200OK, sesionAMS);
-            }
-            else if (colaboradorEncontrado == null)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, "Usuario no encontrado");
-            }
-            else if (login.Clave != colaboradorEncontrado.Clave)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, "Contraseña incorrecta");
-            }
+            var empleadoEncontrado = await _context.Empleados.FirstOrDefaultAsync(e => e.Email == login.Correo);
 
+            if (empleadoEncontrado != null && empleadoEncontrado.Clave == login.Clave)
+            {
+                sesionAMS.Nombre = empleadoEncontrado.Nombre;
+                sesionAMS.Correo = login.Correo;
+                sesionAMS.Rol = "Empleado";
+            }
+            else if (empleadoEncontrado == null || login.Clave != empleadoEncontrado.Clave)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, "Usuario o Contraseña incorrecta");
+            }
             var clienteEncontrado = await _context.Clientes.FirstOrDefaultAsync(e => e.Email == login.Correo);
 
-            if (clienteEncontrado != null && clienteEncontrado.Clave==login.Clave)
+            if (clienteEncontrado != null && clienteEncontrado.Clave == login.Clave)
             {
                 sesionAMS.Nombre = clienteEncontrado.Nombre;
                 sesionAMS.Correo = login.Correo;
                 sesionAMS.Rol = "Cliente";
             }
-            else if (clienteEncontrado == null)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, "Usuario no encontrado");
-            }
-            else if (login.Clave != clienteEncontrado.Clave)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, "Contraseña incorrecta");
-            }
-
             return StatusCode(StatusCodes.Status200OK, sesionAMS);
         }
     }

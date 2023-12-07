@@ -1,8 +1,11 @@
-﻿@page "/RegistroCitas";
-@page "/RegistroCitas/{CitaId:int}";
+﻿@page "/C/Registros/Citas";
+@page "/C/Registros/Citas/{CitaId:int}";
+@using System.Security.Claims
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-@attribute [Authorize(Roles = "Administrador, Colaborador")]
+@inject AuthenticationStateProvider autenticacionProvider
+@inject NavigationManager navManager
+@attribute [Authorize(Roles = "Administrador, Empleado,Cliente")]
 
 <EditForm Model="citas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -11,25 +14,16 @@
             <img src="zyroimage.png" class="img-logo" />
             <h1>Registro Citas</h1>
         </div>
+        <div>@cliente.Nombre</div>
         <div class="card-body">
             <div class="row">
-                <label>Cita ID:</label>
-                <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="citas.CitaId" class="id-input"></InputNumber>
-                    <button type="button" class="btn btn-dark oi oi-magnifying-glass" @onclick="Buscar"></button>
-                </div>
-                <div class="col-md-6">
-                    <label>Colaborador Id:</label>
-                    <InputNumber @bind-Value="citas.ColaboradorId" class="form-control"></InputNumber>
-                    <ValidationMessage For="@(() => citas.ColaboradorId)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Fecha:</label>
+                <div class="col-md-4">
+                    <label>Fecha Deseada:</label>
                     <InputDate @bind-Value="citas.Fecha" class="form-control"></InputDate>
                     <ValidationMessage For="@(() => citas.Fecha)" />
                 </div>
                 <div class="col-md-2">
-                    <div>
+                    <div >
                         <label>Hora:</label>
                         <input type="time" @bind="citas.Fecha" format="HH:mm:ss" />
                     </div>
@@ -47,6 +41,60 @@
             </div>
         </div>
         @*Detalles:*@
+        @*Detalle Trabajos*@
+        <table class='table table-responsive table-striped'>
+            <div class="card card-header">
+                <h3>Trabajos Elegidos</h3>
+            </div>
+            <thead>
+                <tr>
+                    <th>Trabajo</th>
+                    <th>Tiempo Estimado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in citas.TipoDeTrabajo)
+                {
+
+                    <tr>
+                        <td>@detalle.Descripcion</td>
+                        <td>@detalle.TiempoEstimado</td>
+                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                    </tr>
+                }
+            </tbody>
+            <tr>
+                <td>Tiempo Estimado Total: @TiempoEstimado</td>
+            </tr>
+        </table>
+        <table class='table table-responsive table-striped'>
+            <div class="card card-header">
+                <h3>Elija lo que desea hacer</h3>
+            </div>
+            <thead>
+                <tr>
+                    <th>Trabajo</th>
+                    <th>Tiempo Estimado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in ListaTiposdeTrabajos)
+                {
+
+                    <tr>
+                        <td>@detalle.Descripcion</td>
+                        <td>@detalle.TiempoEstimado</td>
+                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => AgregarDetalleTrabajo(detalle))></button></td>
+                    </tr>
+                }
+            </tbody>
+            <tr>
+                <td>Tiempo Estimado Total: @TiempoEstimado</td>
+            </tr>
+        </table>
+        @*Detalle Producto*@
         <div class="card card-header">
             <h3>Productos utilizados</h3>
         </div>
@@ -54,29 +102,31 @@
             <div class="row">
                 <div class="col-md-6">
                     <label>Producto</label>
-                    <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
+                    <InputSelect @bind-Value="DetallesCitas.ProductoId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
                         @foreach (var p in ListaProductos)
                         {
                             <option value="@p.ProductoId">@p.Nombre</option>
                         }
                     </InputSelect>
-                    <ValidationMessage For="@(() => Detalles.ProductoId)" />
+                    <ValidationMessage For="@(() => DetallesCitas.ProductoId)" />
                 </div>
+                
                 <div class="col-md-6">
                     <label>Cantidad</label>
                     <div class="input-group">
-                        <InputNumber @bind-Value="Detalles.CantidadUtilizada" class="form-control"></InputNumber>
-                        <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
-                        <ValidationMessage For="@(() => Detalles.CantidadUtilizada)" />
+                        <InputNumber @bind-Value="DetallesCitas.CantidadUtilizada" class="form-control"></InputNumber>
+                        <button type="button" class="btn btn-success" @onclick="AgregarDetalleProducto"><i class="oi oi-plus" />Add</button>
+                        <ValidationMessage For="@(() => DetallesCitas.CantidadUtilizada)" />
                     </div>
                 </div>
             </div>
         </div>
+       
+
         <table class='table table-responsive table-striped'>
             <thead>
                 <tr>
-                    <th>Producto Id</th>
                     <th>Nombre</th>
                     <th>Descripci&oacute;n</th>
                     <th>Cantidad</th>
@@ -101,7 +151,6 @@
                                 <p>No hay imagen disponible para este producto.</p>
                             }
                         }
-                        <td>@detalle.ProductoId</td>
                         <td>@ObtenerNombre(detalle.ProductoId)</td>
                         <td>@ObtenerDescripción(detalle.ProductoId)</td>
                         <td>@detalle.CantidadUtilizada</td>
@@ -129,19 +178,30 @@
 
     public int CitaId { get; set; }
     public Citas citas { get; set; } = new Citas();
-    public CitasDetalles Detalles { get; set; } = new CitasDetalles();
+    public CitasDetalles DetallesCitas { get; set; } = new CitasDetalles();
+    public TiposDeTrabajos DetallesTrabajo { get; set; } = new TiposDeTrabajos();
     public List<Productos> ListaProductos { get; set; } = new List<Productos>();
-    public List<CitasDetalles> DetallesRemovidos { get; set; } = new List<CitasDetalles>();
+    public List<CitasDetalles> DetallesRemovidosProducto { get; set; } = new List<CitasDetalles>();
     public List<CitasDetalles> ListaDetalles { get; set; } = new List<CitasDetalles>();
 
+    public List<TiposDeTrabajos> ListaTiposdeTrabajos { get; set; } = new List<TiposDeTrabajos>();
+    public List<TiposDeTrabajos> DetallesRemovidosTrabajo { get; set; } = new List<TiposDeTrabajos>();
+
+
     public float MontoT { get; set; } = 0;
+    public int TiempoEstimado { get; set; } = 0;
     public bool idVacio;
     public bool cantidadCero;
+
+    AuthenticationState usuario;
+    Clientes cliente = new Clientes();
 
     protected override async Task OnInitializedAsync()
     {
         var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
-
+        await getUsuario();
+        await getCliente();
+        await CargarTrabajos();
         if (productos is not null)
         {
             ListaProductos = productos;
@@ -188,7 +248,7 @@
     public async Task Buscar()
     {
         ListaDetalles = new List<CitasDetalles>();
-        DetallesRemovidos = new List<CitasDetalles>();
+        DetallesRemovidosProducto = new List<CitasDetalles>();
         var entradaIdEncontrada = (await httpClient.GetFromJsonAsync<List<Citas>>($"api/Citas"))!
         .ToList()
         .Any(e => e.CitaId == citas.CitaId);
@@ -216,33 +276,63 @@
         }
     }
 
-    public async Task Guardar()
+    public async Task getUsuario()
     {
-        citas.Monto = MontoT;
-        if (citas.CitaId < 0)
+        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        usuario = await autenticacionExt.GetAuthenticationStateAsync();
+    }
+
+    public async Task getCliente()
+    {
+        var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+        // Asegúrate de ajustar la comparación según la estructura real de tus reclamaciones
+        var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+    }
+
+    public async Task getTiposdeTrabajos()
+    {
+        var tiposdeTrabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposdeTrabajos");
+        if (tiposdeTrabajos is not null)
+        {
+            ListaTiposdeTrabajos = tiposdeTrabajos;
+        }
+    }
+    public bool ValidarGuardar()
+    {
+        getCliente();
+        if (cliente.Baneado == true)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "Error",
-                    Detail = "La CitaId no puede ser Negativa.",
+                    Summary = "Baneado",
+                    Detail = "Comunicarse con el local su cuenta a sido baneada.",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
-            return;
+            return false;
         }
-        if (citas.CitasDetalles.Count == 0)
+        if (ListaTiposdeTrabajos.Count == 0)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "No se puede guardar una cita sin producto utilizados.",
+                    Detail = "No se puede guardar una cita sin el trabajo que desea hacer.",
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
-            return;
+            return false;
         }
+        return true;
+    }
+
+    public async Task Guardar()
+    {
+        citas.Monto = MontoT;
+        if(!ValidarGuardar())
+        { return; }
         using var response = await httpClient.PostAsJsonAsync("api/Citas", citas);
         if (!response.IsSuccessStatusCode)
         {
@@ -259,9 +349,9 @@
         var entradaDevuelta = await response.Content.ReadFromJsonAsync<Citas>();
         if (entradaDevuelta is not null)
         {
-            if (DetallesRemovidos.Count > 0)
+            if (DetallesRemovidosProducto.Count > 0)
             {
-                foreach (var detalle in DetallesRemovidos)
+                foreach (var detalle in DetallesRemovidosProducto)
                 {
                     await httpClient.DeleteAsync($"api/Citas/DeleteDetalles/{detalle.DetalleId}");
                     var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
@@ -295,8 +385,8 @@
     public void Nuevo()
     {
         this.citas = new Citas();
-        this.Detalles = new CitasDetalles();
-        DetallesRemovidos = new List<CitasDetalles>();
+        this.DetallesCitas = new CitasDetalles();
+        DetallesRemovidosProducto = new List<CitasDetalles>();
         ListaDetalles = new List<CitasDetalles>();
         MontoT = 0;
     }
@@ -345,12 +435,12 @@
 
     public bool Validar()
     {
-        idVacio = (Detalles.ProductoId <= 0);
-        cantidadCero = (Detalles.CantidadUtilizada <= 0);
+        idVacio = (DetallesCitas.ProductoId <= 0);
+        cantidadCero = (DetallesCitas.CantidadUtilizada <= 0);
         return idVacio || cantidadCero;
     }
 
-    public async Task AgregarDetalle()
+    public async Task AgregarDetalleProducto()
     {
         if (Validar())
         {
@@ -364,10 +454,10 @@
             notificationService.Notify(mensaje);
             return;
         }
-        var producto = await BuscarProductos(Detalles.ProductoId);
+        var producto = await BuscarProductos(DetallesCitas.ProductoId);
         if (producto != null)
         {
-            if (Detalles.CantidadUtilizada > producto.Existencia)
+            if (DetallesCitas.CantidadUtilizada > producto.Existencia)
             {
                 var mensaje = new NotificationMessage
                     {
@@ -383,12 +473,12 @@
 
         if (citas != null)
         {
-            Detalles.CitaId = citas.CitaId;
-            citas.CitasDetalles.Add(Detalles);
-            ListaDetalles.Add(Detalles);
-            if (DetallesRemovidos.Any(d => d.DetalleId == Detalles.DetalleId))
-                DetallesRemovidos.Remove(Detalles);
-            Detalles = new CitasDetalles();
+            DetallesCitas.CitaId = citas.CitaId;
+            citas.CitasDetalles.Add(DetallesCitas);
+            ListaDetalles.Add(DetallesCitas);
+            if (DetallesRemovidosProducto.Any(d => d.DetalleId == DetallesCitas.DetalleId))
+                DetallesRemovidosProducto.Remove(DetallesCitas);
+            DetallesCitas = new CitasDetalles();
             MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
 
         }
@@ -397,12 +487,34 @@
 
     public void RemoverDetalle(CitasDetalles detalle)
     {
-        Detalles = detalle;
+        DetallesCitas = detalle;
         citas.CitasDetalles.Remove(detalle);
-        DetallesRemovidos.Add(detalle);
+        DetallesRemovidosProducto.Add(detalle);
         if (ListaDetalles.Any(d => d.DetalleId == detalle.DetalleId))
             ListaDetalles.Remove(detalle);
         MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+        StateHasChanged();
+    }
+
+    public void RemoverDetalle(TiposDeTrabajos detalle)
+    {
+        DetallesTrabajo = detalle;
+        citas.TipoDeTrabajo.Remove(detalle);
+        DetallesRemovidosTrabajo.Add(detalle);
+        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
+        if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == detalle.TipoDeTrabajoId))
+            DetallesRemovidosTrabajo.Remove(detalle);
+        StateHasChanged();
+    }
+
+
+    public async Task AgregarDetalleTrabajo(TiposDeTrabajos Trabajo)
+    {
+        citas.TipoDeTrabajo.Add(Trabajo);
+        ListaTiposdeTrabajos.Remove(Trabajo);
+        if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == Trabajo.TipoDeTrabajoId))
+            DetallesRemovidosTrabajo.Remove(Trabajo);
+        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
         StateHasChanged();
     }
 
@@ -413,5 +525,13 @@
         return producto ?? new Productos();
     }
 
+    public async Task CargarTrabajos()
+    {
+        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposdeTrabajos");
+        if (trabajos is not null)
+        {
+            ListaTiposdeTrabajos = trabajos;
+        }
+    }
 
 }

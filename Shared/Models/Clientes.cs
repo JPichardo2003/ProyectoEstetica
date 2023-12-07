@@ -24,11 +24,16 @@ namespace AguaMariaSolution.Shared.Models
         [Required(ErrorMessage = "Debe ingresar el email del cliente")]
         [EmailAddress(ErrorMessage = "Debe ingresar un email valido")]
         public string? Email { get; set; }
+
+        [Required(ErrorMessage = "Debe ingresar una clave")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,100}$", ErrorMessage = "La contraseña debe tener más de 8 caracteres, al menos un dígito, al menos una minúscula y al menos una mayúscula.")]
         public string? Clave { get; set; }
 
         [Required(ErrorMessage = "Debe ingresar el telefono del cliente")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Ingrese el telefono correctamente, Ejemplo: 8094587412")]
         public string? Teléfono { get; set; }
+
+        public bool Baneado { get; set; } = false;
 
         [ForeignKey("ClienteId")]
         public ICollection<Citas> Citas { get; set; } = new List<Citas>();

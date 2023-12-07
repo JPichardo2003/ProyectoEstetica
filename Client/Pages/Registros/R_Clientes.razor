@@ -43,12 +43,26 @@
                     <InputText @bind-Value="clientes.Clave" class="form-control"></InputText>
                     <ValidationMessage For="@(() => clientes.Clave)" />
                 </div>
+                <AuthorizeView Roles="Administrador" Context="Admin">
+                    <Authorized>
+                        <label>Banear:</label>
+                        <InputSelect @bind-Value=clientes.Baneado>
+                            <option value="true">Si</option>
+                            <option value="false">No</option
+                        </InputSelect>
+                    </Authorized>
+                </AuthorizeView>
             </div>
         </div>
         <div class="card-footer">
             <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
             <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
-            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+            <AuthorizeView Roles="Administrador" Context="Admin">
+                <Authorized>
+                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+                </Authorized>
+            </AuthorizeView>
+
         </div>
     </div>
 </EditForm>

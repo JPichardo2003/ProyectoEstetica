@@ -3,6 +3,7 @@ using System;
 using AguaMariaSolution.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguaMariaSolution.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20231206032320_Creando_Clase_TiposDeTrabajo")]
+    partial class Creando_Clase_TiposDeTrabajo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.13");
@@ -80,9 +83,6 @@ namespace AguaMariaSolution.Server.Migrations
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("Llego")
-                        .HasColumnType("INTEGER");
 
                     b.Property<float>("Monto")
                         .HasColumnType("REAL");
@@ -345,206 +345,12 @@ namespace AguaMariaSolution.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<float>("Precio")
-                        .HasColumnType("REAL");
-
                     b.Property<int>("TiempoEstimado")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TipoDeTrabajoId");
 
                     b.ToTable("TiposDeTrabajos");
-
-                    b.HasData(
-                        new
-                        {
-                            TipoDeTrabajoId = 1,
-                            Descripcion = "Limpieza Facial",
-                            Precio = 300f,
-                            TiempoEstimado = 20
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 2,
-                            Descripcion = "Manicura",
-                            Precio = 400f,
-                            TiempoEstimado = 40
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 3,
-                            Descripcion = "Pedicura",
-                            Precio = 400f,
-                            TiempoEstimado = 40
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 4,
-                            Descripcion = "Masaje",
-                            Precio = 700f,
-                            TiempoEstimado = 60
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 5,
-                            Descripcion = "Depilacion",
-                            Precio = 500f,
-                            TiempoEstimado = 40
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 6,
-                            Descripcion = "Tratamiento Facial",
-                            Precio = 500f,
-                            TiempoEstimado = 35
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 7,
-                            Descripcion = "Tratamiento Corporal",
-                            Precio = 600f,
-                            TiempoEstimado = 40
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 8,
-                            Descripcion = "Tratamiento Capilar",
-                            Precio = 500f,
-                            TiempoEstimado = 35
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 9,
-                            Descripcion = "Maquillaje",
-                            Precio = 1500f,
-                            TiempoEstimado = 60
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 10,
-                            Descripcion = "Tinte de Pestañas",
-                            Precio = 700f,
-                            TiempoEstimado = 45
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 11,
-                            Descripcion = "Tinte de Cejas",
-                            Precio = 400f,
-                            TiempoEstimado = 45
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 12,
-                            Descripcion = "Micropigmentacion",
-                            Precio = 1000f,
-                            TiempoEstimado = 70
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 13,
-                            Descripcion = "Extensiones de Pestañas",
-                            Precio = 600f,
-                            TiempoEstimado = 30
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 14,
-                            Descripcion = "Extensiones de Cejas",
-                            Precio = 700f,
-                            TiempoEstimado = 30
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 15,
-                            Descripcion = "Extensiones de Uñas",
-                            Precio = 700f,
-                            TiempoEstimado = 30
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 16,
-                            Descripcion = "Uñas Acrilicas Para Manos",
-                            Precio = 1000f,
-                            TiempoEstimado = 45
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 17,
-                            Descripcion = "Uñas Gelish Para Manos",
-                            Precio = 1100f,
-                            TiempoEstimado = 50
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 18,
-                            Descripcion = "Uñas Esculpidas Para Manos",
-                            Precio = 1200f,
-                            TiempoEstimado = 50
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 19,
-                            Descripcion = "Uñas Acrigel Para Manos",
-                            Precio = 1300f,
-                            TiempoEstimado = 50
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 20,
-                            Descripcion = "Uñas Polygel Para Manos",
-                            Precio = 1200f,
-                            TiempoEstimado = 40
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 21,
-                            Descripcion = "Uñas Acrilgel Para Manos",
-                            Precio = 1200f,
-                            TiempoEstimado = 60
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 22,
-                            Descripcion = "Uñas Acrilicas Para Pies",
-                            Precio = 1000f,
-                            TiempoEstimado = 50
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 23,
-                            Descripcion = "Uñas Gelish Para Pies",
-                            Precio = 1100f,
-                            TiempoEstimado = 50
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 24,
-                            Descripcion = "Uñas Esculpidas Para Pies",
-                            Precio = 1200f,
-                            TiempoEstimado = 50
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 25,
-                            Descripcion = "Uñas Acrigel Para Pies",
-                            Precio = 1300f,
-                            TiempoEstimado = 40
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 26,
-                            Descripcion = "Uñas Polygel Para Pies",
-                            Precio = 1200f,
-                            TiempoEstimado = 60
-                        },
-                        new
-                        {
-                            TipoDeTrabajoId = 27,
-                            Descripcion = "Uñas Acrilgel Para Pies",
-                            Precio = 1200f,
-                            TiempoEstimado = 50
-                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Citas", b =>
