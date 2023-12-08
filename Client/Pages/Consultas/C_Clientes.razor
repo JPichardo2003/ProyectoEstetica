@@ -1,5 +1,64 @@
-﻿<h3>C_Clientes</h3>
+﻿@page "/c_cliente"
+@inject HttpClient httpClient
+
+<div class="card">
+    <div class="card">
+
+        <div class="card-header">
+            <h3> Lista de Clientes  </h3>
+        </div>
+
+        @if (ListaClientes is not null)
+        {
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ClienteId</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Contrase&ntilde;a</th>
+                        <th>Tel&eacute;fono</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in ListaClientes)
+                    {
+                        <tr>
+                            <td>@p.ClienteId</td>
+                            <td>@p.Nombre</td>
+                            <td>@p.Apellido</td>
+                            <td>@p.Email</td>
+                            <td>@p.Clave</td>
+                            <td>@p.Teléfono</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Cantidad: @conteo</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+        }
+    </div>
+</div>
 
 @code {
+    public List<Clientes>? ListaClientes { get; set; }
+    public int conteo { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await Buscar();
+    }
+
+    public async Task Buscar()
+    {
+        ListaClientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
+
+        conteo = ListaClientes != null ? ListaClientes!.Count() : 0;
+        StateHasChanged();
+    }
 }

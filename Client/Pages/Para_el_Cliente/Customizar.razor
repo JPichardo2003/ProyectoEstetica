@@ -1,0 +1,178 @@
+﻿@page "/customiazar";
+@page "/customizar/{editarId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@attribute [Authorize(Roles = "Cliente, Administrador")]
+
+<EditForm Model="cliente" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator />
+
+	<div class="card">
+		<div class="card-header d-flex align-items-center">
+			<img src="zyroimage.png" class="img-logo" />
+			<h1>Customizador de Clientes</h1>
+		</div>
+		<div class="card-body">
+			<label>ID:</label>
+			<div class="input-group">
+				<InputNumber @bind-Value="cliente.ClienteId" class="id-input"></InputNumber>
+				<button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<label>Nombre:</label>
+					<InputText @bind-Value="cliente.Nombre" class="form-control"></InputText>
+					<ValidationMessage For="@(() => cliente.Nombre)" />
+				</div>
+				<div class="col-md-6">
+					<label>Apellido:</label>
+					<InputText @bind-Value="cliente.Apellido" class="form-control"></InputText>
+					<ValidationMessage For="@(() => cliente.Apellido)" />
+				</div>
+				<div class="col-md-6">
+					<label>Email:</label>
+					<InputText @bind-Value="cliente.Email" class="form-control"></InputText>
+					<ValidationMessage For="@(() => cliente.Email)" />
+				</div>
+				<div class="col-md-6">
+					<label>Clave</label>
+					<input type="password" @bind="cliente.Clave" class="form-control"></input>
+					<ValidationMessage For="@(() => cliente.Clave)" />
+				</div>
+				<div class="col-md-6">
+					<label>Tel&eacute;fono:</label>
+					<InputText @bind-Value="cliente.Teléfono" class="form-control"></InputText>
+					<ValidationMessage For="@(() => cliente.Teléfono)" />
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+			<button type="button" class="btn btn-outline-warning" @onclick="Modificar">Modificar <i class="oi oi-pencil" /></button>
+			<AuthorizeView Roles="Administrador">
+				<Authorized Context="Admin">
+					<button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+				</Authorized>
+			</AuthorizeView>
+		</div>
+	</div>
+</EditForm>
+
+
+@code
+{
+	[Parameter]
+
+	public int editarId { get; set; }
+
+	public Clientes cliente { get; set; } = new Clientes();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (editarId > 0)
+		{
+			this.cliente.ClienteId = editarId;
+			await Buscar();
+		}
+	}
+
+	public async Task Buscar()
+	{
+		var productoIdEncontrado = (await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes"))!
+		.ToList()
+		.Any(c => c.ClienteId == cliente.ClienteId);
+		if (productoIdEncontrado)
+		{
+			var productoEncontrado = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{cliente.ClienteId}");
+			if (productoEncontrado != null)
+			{
+				this.cliente = productoEncontrado;
+				StateHasChanged();
+			}
+		}
+		else
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = "No se encontro ningun producto",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+			return;
+		}
+	}
+
+	public async Task Modificar()
+	{
+		using var response = await httpClient.PostAsJsonAsync("api/Clientes/Mody", cliente);
+		if (response.IsSuccessStatusCode)
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Exito!",
+					Detail = "Se modificio correctamente",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+			this.Nuevo();
+		}
+		else
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error!",
+					Detail = "No se pude modificar",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+			return;
+		}
+	}
+
+	public void Nuevo()
+	{
+		this.cliente = new Clientes();
+		var mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Info,
+				Summary = "Info",
+				Detail = "Nuevo",
+				Duration = 4_000
+			};
+		notificationService.Notify(mensaje);
+	}
+
+	public async Task Eliminar()
+	{
+		using var response = await httpClient.DeleteAsync($"api/Clientes/{cliente.ClienteId}");
+		if (!response.IsSuccessStatusCode)
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = "No es posible Eliminar",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+			return;
+		}
+		else
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito",
+					Detail = "producto Eliminado Correctamente",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+
+		}
+		Nuevo();
+	}
+}

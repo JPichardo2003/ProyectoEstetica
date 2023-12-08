@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/admin"
 @using System.Net;
 @layout LoginLayout
 
@@ -114,13 +114,13 @@
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>
-							<input @bind="login.Correo" type="email" name="" class="form-control input_user" placeholder="username">
+							<input @bind="login.Correo" type="email" name="" class="form-control input_user" placeholder="username admin">
 						</div>
 						<div class="input-group mb-2">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-key"></i></span>
 							</div>
-							<input @bind="login.Clave" type="password" name="" class="form-control input_pass" placeholder="password">
+							<input @bind="login.Clave" type="password" name="" class="form-control input_pass" placeholder="password admin">
 						</div>
 						<div class="form-group">
 							<div class="custom-control custom-checkbox">
@@ -129,7 +129,7 @@
 							</div>
 						</div>
 						<div class="d-flex justify-content-center mt-3 login_container">
-							<button @onclick="IniciarSesion" type="button" name="button" class="btn login_btn">Login</button>
+							<button @onclick="IniciarSesion" type="button" name="button" class="btn login_btn">Login Admin</button>
 						</div>
 					</form>
 				</div>
@@ -157,7 +157,7 @@
 		{
 			var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionAMS>();
 
-			if (sesionUsuario.Rol == "Cliente" || sesionUsuario.Rol == "Empleado")
+			if (sesionUsuario.Rol == "Administrador")
 			{
 				var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
 				await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
