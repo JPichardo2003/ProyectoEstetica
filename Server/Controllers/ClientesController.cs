@@ -141,5 +141,15 @@ namespace AguaMariaSolution.Server.Controllers
         {
             return (_context.Clientes?.Any(e => e.ClienteId == id)).GetValueOrDefault();
         }
-    }
+
+		[HttpPost]
+		[Route("Mody")]
+		public async Task<ActionResult<Clientes>> ModyClientes(Clientes clientes)
+		{
+			if (ClientesExists(clientes.ClienteId))
+				_context.Clientes.Update(clientes);
+			await _context.SaveChangesAsync();
+			return Ok(clientes);
+		}
+	}
 }
