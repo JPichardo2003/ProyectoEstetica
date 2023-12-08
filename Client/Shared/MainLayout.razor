@@ -14,6 +14,7 @@
         <AuthorizeView Roles="Administrador, Colaborador">
             <Authorized>
                 <div class="top-row px-4">
+                    <strong>Bienvenido!: </strong> @context.User.Identity!.Name
                     <a @onclick="CerrarSesion" href="javascript:void(0)">Cerrar Sesion</a>
                 </div>
             </Authorized>
