@@ -1,5 +1,184 @@
-﻿<h3>C_Colaboradores</h3>
+﻿@page "/C_Colaboradores"
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+
+<div class="card-header">
+    <h2>Consulta de colaboradores</h2>
+</div>
+
+<div class='row'>
+    @* Filtro *@
+    <div class='col-md-4'>
+        <label>Filtro</label>
+        <div class="filter-box">
+            <InputSelect class="form-select" @bind-Value="opcion">
+                <option value=0>Sin filtro</option>
+                <option value=1>Colaborador Id</option>
+                <option value=2>Nombre</option>
+            </InputSelect>
+        </div>
+    </div>
+
+    <div class='col-md-6'>
+        @* Criterio *@
+        <label>Criterio</label>
+        <div class="col-md-6">
+            <div class="input-group mb-3">
+                <input id="c_search" type="text" class="form-control" @bind="criterio" disabled="@activarCriterio" />
+                <button type="button" class="btn btn-info oi oi-magnifying-glass" @onclick="Filtrar"></button>
+            </div>
+        </div>
+    </div>
+</div>
+            
+            <button type="button" class="btn btn-outline-primary oi oi-reload" @onclick="ReiniciarFiltro"></button>
+           
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Colaborador Id</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Dirección</th>
+            <th>Celular</th>
+            <th>Activo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in L_Colaboradores)
+        {
+            <tr>
+                <td>@item.ColaboradorId</td>
+                <td>@item.Nombre</td>
+                <td>@item.Apellido</td>
+                <td>@item.Email</td>
+                <td>@item.Dirección</td>
+                <td>@item.Celular</td>
+                <td>@item.Activo</td>
+
+                <td><a href="/RegistroColaborador/@item.ColaboradorId"> Ver</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @code {
+    public List<Colaboradores> L_Colaboradores { get; set; } = new List<Colaboradores>();
+    public int opcion { get; set; }
+    public bool activarCriterio { get { return opcion == 0; } }
+    public string criterio { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var colaboradores = await httpClient.GetFromJsonAsync<List<Colaboradores>>("api/Colaboradores");
+        if (colaboradores is not null)
+        {
+            L_Colaboradores = colaboradores;
+        }
+    }
+
+    void Filtrar()
+    {
+        switch (opcion)
+        {
+            case 0:
+                SinFiltro();
+                break;
+            case 1:
+                FiltrarPorId();
+                break;
+            case 2:
+                FiltrarPorNombre();
+                break;
+        }
+    }
+
+    async Task SinFiltro()
+    {
+        var colaboradores = await httpClient.GetFromJsonAsync<List<Colaboradores>>("api/Colaboradores");
+        if (colaboradores is not null)
+        {
+            L_Colaboradores = colaboradores;
+        }
+        criterio = string.Empty;
+    }
+
+
+    void ReiniciarFiltro()
+    {
+        if (opcion != 0)
+        {
+            SinFiltro();
+            opcion = 0;
+            criterio = string.Empty;
+        }
+    }
+
+    void FiltrarPorId()
+    {
+        int IdBuscado = 0;
+
+        if (int.TryParse(criterio, out IdBuscado) && IdBuscado > 0)
+        {
+            if (L_Colaboradores.Any(item => item.ColaboradorId == IdBuscado))
+            {
+                L_Colaboradores = L_Colaboradores.Where(item => item.ColaboradorId == IdBuscado).ToList();
+            }
+            else
+            {
+   
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Id no encontrado",
+                        Detail = "No existe un colaborador con ese Id",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El criterio no es un número entero positivo",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        
+    }
+
+
+    void FiltrarPorNombre()
+    {
+        // Verifica si el criterio de búsqueda por nombre no está vacío
+        if (!string.IsNullOrEmpty(criterio))
+        {
+            // Filtra la lista de Colaboradores por el nombre que contiene el criterio
+            L_Colaboradores = L_Colaboradores.Where(item => item.Nombre.Contains(criterio)).ToList();
+
+            // Verifica si se encontraron resultados
+            if (L_Colaboradores.Count == 0)
+            {
+                // Muestra una notificación indicando que no se encontraron resultados
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "No se encontraron resultados",
+                        Detail = $"No hay colaboradores con el nombre que contiene '{criterio}'",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+            }
+        }
+    }
+
 
 }
