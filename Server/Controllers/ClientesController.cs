@@ -29,7 +29,7 @@ namespace AguaMariaSolution.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Clientes.ToListAsync();
+            return await _context.Clientes.Include(c => c.Citas).ToListAsync();
         }
 
         // GET: api/Clientes/5
@@ -40,7 +40,7 @@ namespace AguaMariaSolution.Server.Controllers
           {
               return NotFound();
           }
-            var clientes = await _context.Clientes.FindAsync(id);
+            var clientes = await _context.Clientes.Include(c => c.Citas).Where(c => c.ClienteId == id).FirstOrDefaultAsync();
 
             if (clientes == null)
             {

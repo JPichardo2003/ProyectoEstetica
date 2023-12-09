@@ -25,10 +25,10 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Citas>>> GetCitas()
         {
-          if (_context.Citas == null)
-          {
-              return NotFound();
-          }
+            if (_context.Citas == null)
+            {
+                return NotFound();
+            }
             return await _context.Citas.ToListAsync();
         }
 
@@ -36,12 +36,11 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Citas>> GetCitas(int id)
         {
-          if (_context.Citas == null)
-          {
-              return NotFound();
-          }
-            var citas = await _context.Citas.Include(c => c.CitasDetalles).Where(c => c.CitaId == id)
-                .FirstOrDefaultAsync();
+            if (_context.Citas == null)
+            {
+                return NotFound();
+            }
+            var citas = await _context.Citas.Include(c => c.CitasDetalles).Include(c => c.TiposDeTrabajos).Where(c => c.CitaId == id).FirstOrDefaultAsync();
 
             if (citas == null)
             {
@@ -87,14 +86,15 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Citas>> PostCitas(Citas citas)
         {
-          if (!CitasExists(citas.CitaId))
+            if (!CitasExists(citas.CitaId))
                 _context.Citas.Add(citas);
-          else
+            else
                 _context.Citas.Update(citas);
-          await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return Ok(citas);
         }
 
+        // DELETE: api/Citas/5
         // DELETE: api/Citas/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCitas(int id)
@@ -103,35 +103,39 @@ namespace AguaMariaSolution.Server.Controllers
             {
                 return NotFound();
             }
-            var citas = await _context.Citas.FindAsync(id);
-            if (citas == null)
+
+            // Buscar la cita por su ID
+            var cita = await _context.Citas.FindAsync(id);
+            if (cita == null)
             {
                 return NotFound();
             }
 
-            _context.Citas.Remove(citas);
+            // Eliminar la cita del cliente
+            var clienteId = cita.ClienteId;
+            var cliente = await _context.Clientes.FindAsync(clienteId);
+            if (cliente != null)
+            {
+                cliente.Citas.Remove(cita);
+            }
+
+            // Eliminar la cita del colaborador
+            var colaboradorId = cita.ColaboradorId;
+            var colaborador = await _context.Colaboradores.FindAsync(colaboradorId);
+            if (colaborador != null)
+            {
+                colaborador.Citas.Remove(cita);
+            }
+
+            // Eliminar la cita
+            _context.Citas.Remove(cita);
+
+            // Guardar los cambios en la base de datos
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        [HttpDelete("DeleteDetalles/{id}")]
-        public async Task<IActionResult> DeleteDetalles(int id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest();
-            }
-            var entradas = await _context.CitasDetalles.FirstOrDefaultAsync(td => td.DetalleId == id);
-            if (entradas is null)
-            {
-                return NotFound();
-            }
-            _context.CitasDetalles.Remove(entradas);
-            await _context.SaveChangesAsync();
-
-            return Ok();
-        }
 
         private bool CitasExists(int id)
         {

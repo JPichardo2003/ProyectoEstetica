@@ -14,7 +14,7 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <AuthorizeView Roles="Administrador, Colaborador">
+        <AuthorizeView Roles="Empleado">
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="RegistroCliente">
@@ -41,8 +41,28 @@
         <AuthorizeView Roles="Administrador">
             <Authorized>
                 <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="RegistroCliente">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registro Cliente
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="RegistroCitas">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registro Citas
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
                     <NavLink class="nav-link" href="RegistroColaborador">
                         <span class="oi oi-plus" aria-hidden="true"></span> Registro Colaborador
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Registros/Admins">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registro de Admins
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="RegistroEmpleado">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registro de Empleados
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
@@ -50,6 +70,17 @@
                         <span class="oi oi-plus" aria-hidden="true"></span> Registro Producto
                     </NavLink>
                 </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Inventario">
+                        <span class="oi oi-box" aria-hidden="true"></span> Inventario
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="ConsultaCitas">
+                        <span class="oi oi-list" aria-hidden="true"></span> Consultar Citas
+                    </NavLink>
+                </div>
+
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="C_Colaboradores">
                         <span class="oi oi-list" aria-hidden="true"></span> Consulta colaboradores
@@ -60,13 +91,37 @@
                         <span class="oi oi-plus" aria-hidden="true"></span> Consultar Clientes
                     </NavLink>
                 </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Consultar/Admins">
+                        <span class="oi oi-list" aria-hidden="true"></span> Consulta de Admins
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="ConsultaEmpleado">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Consultar de Empleados
+                    </NavLink>
+                </div>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Administrador, Cliente">
+        <AuthorizeView Roles="Cliente">
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="customiazar">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Editar Clientes
+                        <span class="oi oi-plus" aria-hidden="true"></span> Editar Perfil
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Cliente">
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="C/Registros/Citas">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registrar Citas
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="ConsultaCitas">
+                        <span class="oi oi-list" aria-hidden="true"></span> Consultar Citas
                     </NavLink>
                 </div>
             </Authorized>

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AguaMariaSolution.Server.DAL;
 using AguaMariaSolution.Shared.Models;
+using AguaMariaSolution.Client.Pages.Registros;
 
 namespace AguaMariaSolution.Server.Controllers
 {
@@ -25,22 +26,23 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Colaboradores>>> GetColaboradores()
         {
-          if (_context.Colaboradores == null)
-          {
-              return NotFound();
-          }
-            return await _context.Colaboradores.ToListAsync();
+            if (_context.Colaboradores == null)
+            {
+                return NotFound();
+            }
+            return await _context.Colaboradores.Include(c => c.Citas).Include(c => c.TipoDeTrabajo).ToListAsync();
         }
 
         // GET: api/Colaboradores/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Colaboradores>> GetColaboradores(int id)
         {
-          if (_context.Colaboradores == null)
-          {
-              return NotFound();
-          }
-            var colaboradores = await _context.Colaboradores.FindAsync(id);
+            if (_context.Colaboradores == null)
+            {
+                return NotFound();
+            }
+            var colaboradores = await _context.Colaboradores.Include(c => c.Citas).Include(c => c.TipoDeTrabajo).Where(e => e.ColaboradorId == id).FirstOrDefaultAsync();
+            ;
 
             if (colaboradores == null)
             {
@@ -86,15 +88,10 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Colaboradores>> PostColaboradores(Colaboradores colaboradores)
         {
-            if (_context.Colaboradores.Any(e => e.Email == colaboradores.Email))
-            {
-                return StatusCode(StatusCodes.Status409Conflict, "Este email ya registrado");
-            }
             if (!ColaboradoresExists(colaboradores.ColaboradorId))
                 _context.Colaboradores.Add(colaboradores);
             else
                 _context.Colaboradores.Update(colaboradores);
-
             await _context.SaveChangesAsync();
             return Ok(colaboradores);
         }
@@ -114,6 +111,32 @@ namespace AguaMariaSolution.Server.Controllers
             }
 
             _context.Colaboradores.Remove(colaboradores);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("DeleteTrabajo/{colaboradorId}/{trabajoId}")]
+        public async Task<IActionResult> DeleteTrabajo(int colaboradorId, int trabajoId)
+        {
+            var colaborador = await _context.Colaboradores
+                .Include(c => c.TipoDeTrabajo)
+                .Where(c => c.ColaboradorId == colaboradorId)
+                .FirstOrDefaultAsync();
+
+            if (colaborador == null)
+            {
+                return NotFound("Colaborador no encontrado");
+            }
+
+            var trabajo = colaborador.TipoDeTrabajo.FirstOrDefault(t => t.TipoDeTrabajoId == trabajoId);
+
+            if (trabajo == null)
+            {
+                return NotFound("Trabajo no encontrado para el colaborador especificado");
+            }
+
+            colaborador.TipoDeTrabajo.Remove(trabajo);
             await _context.SaveChangesAsync();
 
             return NoContent();

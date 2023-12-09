@@ -25,10 +25,10 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TiposDeTrabajos>>> GetTiposDeTrabajos()
         {
-          if (_context.TiposDeTrabajos == null)
-          {
-              return NotFound();
-          }
+            if (_context.TiposDeTrabajos == null)
+            {
+                return NotFound();
+            }
             return await _context.TiposDeTrabajos.ToListAsync();
         }
 
@@ -36,10 +36,10 @@ namespace AguaMariaSolution.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TiposDeTrabajos>> GetTiposDeTrabajos(int id)
         {
-          if (_context.TiposDeTrabajos == null)
-          {
-              return NotFound();
-          }
+            if (_context.TiposDeTrabajos == null)
+            {
+                return NotFound();
+            }
             var tiposDeTrabajos = await _context.TiposDeTrabajos.FindAsync(id);
 
             if (tiposDeTrabajos == null)
