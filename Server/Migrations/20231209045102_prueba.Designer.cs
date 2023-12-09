@@ -11,8 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguaMariaSolution.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
     [Migration("20231209045102_prueba")]
     partial class prueba
+========
+    [Migration("20231208162458_add cliente")]
+    partial class addcliente
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -419,22 +424,35 @@ namespace AguaMariaSolution.Server.Migrations
                         new
                         {
                             TipoDeTrabajoId = 1,
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             Descripcion = "Limpieza",
                             Precio = 500f,
+========
+                            Descripcion = "Limpieza Facial",
+                            Precio = 300f,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             TiempoEstimado = 20
                         },
                         new
                         {
                             TipoDeTrabajoId = 2,
                             Descripcion = "Manicura",
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             Precio = 500f,
+========
+                            Precio = 400f,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             TiempoEstimado = 40
                         },
                         new
                         {
                             TipoDeTrabajoId = 3,
                             Descripcion = "Pedicura",
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             Precio = 500f,
+========
+                            Precio = 400f,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             TiempoEstimado = 40
                         },
                         new
@@ -454,37 +472,181 @@ namespace AguaMariaSolution.Server.Migrations
                         new
                         {
                             TipoDeTrabajoId = 6,
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             Descripcion = "Tratamiento",
                             Precio = 900f,
+========
+                            Descripcion = "Tratamiento Facial",
+                            Precio = 500f,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             TiempoEstimado = 35
                         },
                         new
                         {
                             TipoDeTrabajoId = 7,
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
+========
+                            Descripcion = "Tratamiento Corporal",
+                            Precio = 600f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 8,
+                            Descripcion = "Tratamiento Capilar",
+                            Precio = 500f,
+                            TiempoEstimado = 35
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 9,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             Descripcion = "Maquillaje",
                             Precio = 1500f,
                             TiempoEstimado = 60
                         },
                         new
                         {
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             TipoDeTrabajoId = 8,
                             Descripcion = "Tinte",
                             Precio = 1000f,
+========
+                            TipoDeTrabajoId = 10,
+                            Descripcion = "Tinte de Pestañas",
+                            Precio = 700f,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             TiempoEstimado = 45
                         },
                         new
                         {
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             TipoDeTrabajoId = 9,
+========
+                            TipoDeTrabajoId = 11,
+                            Descripcion = "Tinte de Cejas",
+                            Precio = 400f,
+                            TiempoEstimado = 45
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 12,
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                             Descripcion = "Micropigmentacion",
                             Precio = 1000f,
                             TiempoEstimado = 70
                         },
                         new
                         {
+<<<<<<<< HEAD:Server/Migrations/20231209045102_prueba.Designer.cs
                             TipoDeTrabajoId = 10,
                             Descripcion = "Extensiones",
                             Precio = 1000f,
                             TiempoEstimado = 30
+========
+                            TipoDeTrabajoId = 13,
+                            Descripcion = "Extensiones de Pestañas",
+                            Precio = 600f,
+                            TiempoEstimado = 30
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 14,
+                            Descripcion = "Extensiones de Cejas",
+                            Precio = 700f,
+                            TiempoEstimado = 30
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 15,
+                            Descripcion = "Extensiones de Uñas",
+                            Precio = 700f,
+                            TiempoEstimado = 30
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 16,
+                            Descripcion = "Uñas Acrilicas Para Manos",
+                            Precio = 1000f,
+                            TiempoEstimado = 45
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 17,
+                            Descripcion = "Uñas Gelish Para Manos",
+                            Precio = 1100f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 18,
+                            Descripcion = "Uñas Esculpidas Para Manos",
+                            Precio = 1200f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 19,
+                            Descripcion = "Uñas Acrigel Para Manos",
+                            Precio = 1300f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 20,
+                            Descripcion = "Uñas Polygel Para Manos",
+                            Precio = 1200f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 21,
+                            Descripcion = "Uñas Acrilgel Para Manos",
+                            Precio = 1200f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 22,
+                            Descripcion = "Uñas Acrilicas Para Pies",
+                            Precio = 1000f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 23,
+                            Descripcion = "Uñas Gelish Para Pies",
+                            Precio = 1100f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 24,
+                            Descripcion = "Uñas Esculpidas Para Pies",
+                            Precio = 1200f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 25,
+                            Descripcion = "Uñas Acrigel Para Pies",
+                            Precio = 1300f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 26,
+                            Descripcion = "Uñas Polygel Para Pies",
+                            Precio = 1200f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 27,
+                            Descripcion = "Uñas Acrilgel Para Pies",
+                            Precio = 1200f,
+                            TiempoEstimado = 50
+>>>>>>>> 7e55004fc9fd9231b391500627b4da2991f15c4e:Server/Migrations/20231208162458_add cliente.Designer.cs
                         });
                 });
 

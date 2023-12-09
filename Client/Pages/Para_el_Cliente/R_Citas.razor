@@ -58,6 +58,10 @@
                 </div>
             </div>
         <table class='table table-responsive table-striped'>
+                <h3>Elija lo que desea hacer</h3>
+            </div>
+                <h3>Elija lo que desea hacer</h3>
+            </div>
             <thead>
                 <tr>
                     <th>Trabajo</th>
@@ -68,13 +72,13 @@
             </thead>
             <tbody>
                 @foreach (var detalle in citas.TiposDeTrabajos)
-                {
-
-                    <tr>
-                        <td>@detalle.Descripcion</td>
                         <td>@detalle.TiempoEstimado minutos</td>
                         <td>@detalle.Precio</td>
                         <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                    <tr>
+                        <td>@detalle.Descripcion</td>
+                        <td>@detalle.TiempoEstimado</td>
+                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => AgregarDetalleTrabajo(detalle))></button></td>
                     </tr>
                 }
             </tbody>
@@ -179,9 +183,11 @@
     public List<CitasDetalles> ListaDetalles { get; set; } = new List<CitasDetalles>();
 
     public List<TiposDeTrabajos> ListaTiposdeTrabajos { get; set; } = new List<TiposDeTrabajos>();
-    public List<TiposDeTrabajos> DetallesRemovidosTrabajo { get; set; } = new List<TiposDeTrabajos>();
+    public string FiltroDeTrabajo { get; set; } = "";
+    public string FiltroDeProducto { get; set; } = "";
     public List<Colaboradores> ListaColaboradores { get; set; } = new List<Colaboradores>();
     public int TrabajoElegido { get; set; } = 0;
+
 
     public string FiltroDeTrabajo { get; set; } = "";
     public string FiltroDeProducto { get; set; } = "";
@@ -276,22 +282,18 @@
             notificationService.Notify(mensaje);
             return;
         }
-    }
-
-    public async Task getUsuario()
-    {
         if (autenticacionProvider == null || httpClient == null)
         {
             // Handle null cases
             return;
         }
 
-        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        usuario = await autenticacionExt.GetAuthenticationStateAsync();
     }
 
-    public async Task getCliente()
+    public async Task getUsuario()
     {
+        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        usuario = await autenticacionExt.GetAuthenticationStateAsync();
         if (httpClient == null || usuario == null)
         {
             // Handle null cases
@@ -307,9 +309,13 @@
         {
             this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
         }
-
+        // Asegúrate de ajustar la comparación según la estructura real de tus reclamaciones
     }
 
+
+        var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+    }
 
     public async Task getTiposdeTrabajos()
     {
@@ -562,10 +568,6 @@
         if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == detalle.TipoDeTrabajoId))
             DetallesRemovidosTrabajo.Remove(detalle);
         await CalcularMonto();
-        StateHasChanged();
-    }
-
-
     public async Task AgregarDetalleTrabajo()
     {
         var ListaTiposdeTrabajosCompleta = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposDeTrabajos");
@@ -615,6 +617,39 @@
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
                     Detail = "Ya se ha agregado este trabajo anterormente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        if (citas.TiposDeTrabajos.Any(d => d.TipoDeTrabajoId == TrabajoElegido))
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Ya se ha agregado este trabajo anterormente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        return true;
+    }
+            DetallesRemovidosTrabajo.Remove(Trabajo);
+        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
+        StateHasChanged();
+    }
+
+    public bool ValidarAgregarDetalleTrabajo()
+    {
+        if (TrabajoElegido<= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Seleccione un trabajo",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
@@ -736,9 +771,9 @@
     public async Task AsignarCitas()
     {
         var colaborador = await httpClient.GetFromJsonAsync<Colaboradores>($"api/Colaboradores/{citas.ColaboradorId}");
+
         colaborador.Citas.Add(citas);
         await httpClient.PutAsJsonAsync<Colaboradores>($"api/Colaboradores/{citas.ColaboradorId}", colaborador);
     }
-
 
 }

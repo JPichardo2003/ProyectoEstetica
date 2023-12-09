@@ -15,12 +15,12 @@
             <div class="row">
                 <label>Cita ID:</label>
                 <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="citas.CitaId" class="id-input"></InputNumber>
+                    <InputNumber @bind-Value="citas.CitaId" class="id-input" min="0"></InputNumber>
                     <button type="button" class="btn btn-dark oi oi-magnifying-glass" @onclick="Buscar"></button>
                 </div>
                 <div class="col-md-6">
                     <label>Colaborador Id:</label>
-                    <InputNumber @bind-Value="citas.ColaboradorId" class="form-control"></InputNumber>
+                    <InputNumber @bind-Value="citas.ColaboradorId" class="form-control" min="0"></InputNumber>
                     <ValidationMessage For="@(() => citas.ColaboradorId)" />
                 </div>
                 <div class="col-md-6">
@@ -41,7 +41,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>Cliente Id:</label>
-                    <InputNumber @bind-Value="citas.ClienteId" class="form-control"></InputNumber>
+                    <InputNumber @bind-Value="citas.ClienteId" class="form-control" min="0"></InputNumber>
                     <ValidationMessage For="@(() => citas.ClienteId)" />
                 </div>
             </div>
@@ -66,7 +66,7 @@
                 <div class="col-md-6">
                     <label>Cantidad</label>
                     <div class="input-group">
-                        <InputNumber @bind-Value="Detalles.CantidadUtilizada" class="form-control"></InputNumber>
+                        <InputNumber @bind-Value="Detalles.CantidadUtilizada" class="form-control" min="0"></InputNumber>
                         <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
                         <ValidationMessage For="@(() => Detalles.CantidadUtilizada)" />
                     </div>
