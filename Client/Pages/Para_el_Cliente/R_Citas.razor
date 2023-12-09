@@ -5,7 +5,7 @@
 @inject NotificationService notificationService;
 @inject AuthenticationStateProvider autenticacionProvider
 @inject NavigationManager navManager
-@attribute [Authorize(Roles = "Administrador, Empleado,Cliente")]
+@attribute [Authorize(Roles = "Cliente")]
 
 <EditForm Model="citas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -14,93 +14,83 @@
             <img src="zyroimage.png" class="img-logo" />
             <h1>Registro Citas</h1>
         </div>
-        <div>@cliente.Nombre</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
                     <label>Fecha Deseada:</label>
-                    <InputDate @bind-Value="citas.Fecha" class="form-control"></InputDate>
+                    <InputDate min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" id="Fecha" @bind-Value="citas.Fecha" class="form-control"></InputDate>
                     <ValidationMessage For="@(() => citas.Fecha)" />
                 </div>
-                <div class="col-md-2">
-                    <div >
-                        <label>Hora:</label>
-                        <input type="time" @bind="citas.Fecha" format="HH:mm:ss" />
-                    </div>
-                </div>
                 <div class="col-md-6">
-                    <label>Servicios:</label>
+                    <label>Comentario:</label>
                     <InputText @bind-Value="citas.Asunto" class="form-control"></InputText>
                     <ValidationMessage For="@(() => citas.Asunto)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Cliente Id:</label>
-                    <InputNumber @bind-Value="citas.ClienteId" class="form-control"></InputNumber>
-                    <ValidationMessage For="@(() => citas.ClienteId)" />
                 </div>
             </div>
         </div>
         @*Detalles:*@
         @*Detalle Trabajos*@
-        <table class='table table-responsive table-striped'>
-            <div class="card card-header">
-                <h3>Trabajos Elegidos</h3>
+        <div class="card card-header">
+            <h3>Trabajos Elegidos</h3>
+        </div>
+        
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Trabajo</label>
+                    <InputSelect @bind-Value="TrabajoElegido" class="form-select">
+                        <option value="0" hidden="hidden">Seleccione</option>
+                        @foreach (var p in ListaTiposdeTrabajos)
+                        {
+                            <option value="@p.TipoDeTrabajoId">@p.Descripcion</option>
+                        }
+                    </InputSelect>
+                </div>
+                
+                <div class="col-md-6">
+
+                <label>Filtrar por nombre</label>
+                <div class="input-group">
+                   
+                    <InputText @bind-Value="FiltroDeTrabajo" @onblur="FiltrarTrabajo" class="form-control"></InputText>
+                    <button type="button" class="btn btn-success" @onclick="AgregarDetalleTrabajo"><i class="oi oi-plus" />Add</button>
+                </div>
+                </div>
             </div>
+        <table class='table table-responsive table-striped'>
             <thead>
                 <tr>
                     <th>Trabajo</th>
                     <th>Tiempo Estimado</th>
+                    <th>Precio</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var detalle in citas.TipoDeTrabajo)
+                @foreach (var detalle in citas.TiposDeTrabajos)
                 {
 
                     <tr>
                         <td>@detalle.Descripcion</td>
-                        <td>@detalle.TiempoEstimado</td>
+                        <td>@detalle.TiempoEstimado minutos</td>
+                        <td>@detalle.Precio</td>
                         <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
                     </tr>
                 }
             </tbody>
             <tr>
-                <td>Tiempo Estimado Total: @TiempoEstimado</td>
+                <td>Tiempo Estimado Total: @TiempoEstimado Minutos</td>
             </tr>
         </table>
-        <table class='table table-responsive table-striped'>
-            <div class="card card-header">
-                <h3>Elija lo que desea hacer</h3>
-            </div>
-            <thead>
-                <tr>
-                    <th>Trabajo</th>
-                    <th>Tiempo Estimado</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var detalle in ListaTiposdeTrabajos)
-                {
 
-                    <tr>
-                        <td>@detalle.Descripcion</td>
-                        <td>@detalle.TiempoEstimado</td>
-                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => AgregarDetalleTrabajo(detalle))></button></td>
-                    </tr>
-                }
-            </tbody>
-            <tr>
-                <td>Tiempo Estimado Total: @TiempoEstimado</td>
-            </tr>
-        </table>
+
         @*Detalle Producto*@
         <div class="card card-header">
             <h3>Productos utilizados</h3>
         </div>
         <div class="card-body border border-1">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label>Producto</label>
                     <InputSelect @bind-Value="DetallesCitas.ProductoId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -111,8 +101,11 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => DetallesCitas.ProductoId)" />
                 </div>
-                
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label>Filtrar por nombre</label>
+                    <InputText @bind-Value="FiltroDeProducto" @onblur="FiltrarProducto" class="form-control"></InputText>
+                </div>
+                <div class="col-md-4">
                     <label>Cantidad</label>
                     <div class="input-group">
                         <InputNumber @bind-Value="DetallesCitas.CantidadUtilizada" class="form-control"></InputNumber>
@@ -178,6 +171,7 @@
 
     public int CitaId { get; set; }
     public Citas citas { get; set; } = new Citas();
+    public DateTime Hora { get; set; } = DateTime.Now;
     public CitasDetalles DetallesCitas { get; set; } = new CitasDetalles();
     public TiposDeTrabajos DetallesTrabajo { get; set; } = new TiposDeTrabajos();
     public List<Productos> ListaProductos { get; set; } = new List<Productos>();
@@ -186,8 +180,11 @@
 
     public List<TiposDeTrabajos> ListaTiposdeTrabajos { get; set; } = new List<TiposDeTrabajos>();
     public List<TiposDeTrabajos> DetallesRemovidosTrabajo { get; set; } = new List<TiposDeTrabajos>();
+    public List<Colaboradores> ListaColaboradores { get; set; } = new List<Colaboradores>();
+    public int TrabajoElegido { get; set; } = 0;
 
-
+    public string FiltroDeTrabajo { get; set; } = "";
+    public string FiltroDeProducto { get; set; } = "";
     public float MontoT { get; set; } = 0;
     public int TiempoEstimado { get; set; } = 0;
     public bool idVacio;
@@ -202,6 +199,9 @@
         await getUsuario();
         await getCliente();
         await CargarTrabajos();
+        await CargarColaboradores();
+        citas.ClienteId = cliente.ClienteId;
+        Hora = DateTime.MinValue;
         if (productos is not null)
         {
             ListaProductos = productos;
@@ -209,6 +209,8 @@
         if (CitaId > 0)
         {
             this.citas.CitaId = CitaId;
+            Hora = citas.Fecha;
+
             await Buscar();
         }
     }
@@ -258,7 +260,7 @@
             if (entradaEncontrada != null)
             {
                 this.citas = entradaEncontrada;
-                MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+                await CalcularMonto();
                 StateHasChanged();
             }
         }
@@ -278,17 +280,36 @@
 
     public async Task getUsuario()
     {
+        if (autenticacionProvider == null || httpClient == null)
+        {
+            // Handle null cases
+            return;
+        }
+
         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
         usuario = await autenticacionExt.GetAuthenticationStateAsync();
     }
 
     public async Task getCliente()
     {
+        if (httpClient == null || usuario == null)
+        {
+            // Handle null cases
+            return;
+        }
+
+
         var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
-        // Asegúrate de ajustar la comparación según la estructura real de tus reclamaciones
+
         var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+
+        if (correoUsuario != null)
+        {
+            this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+        }
+
     }
+
 
     public async Task getTiposdeTrabajos()
     {
@@ -325,62 +346,97 @@
             notificationService.Notify(mensaje);
             return false;
         }
-        return true;
-    }
-
-    public async Task Guardar()
-    {
-        citas.Monto = MontoT;
-        if(!ValidarGuardar())
-        { return; }
-        using var response = await httpClient.PostAsJsonAsync("api/Citas", citas);
-        if (!response.IsSuccessStatusCode)
+        if (citas.Fecha < DateTime.Now.AddDays(1))
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "No se pudo Guardar correctamente, verifique los campos",
-                    Duration = 4_000
+                    Detail = "No se puede guardar una cita con menos de 24 horas de anticipacion.",
+                    Duration = 4000
                 };
             notificationService.Notify(mensaje);
+            return false;
+        }
+        DateTime.MinValue.AddHours(8);
+        if (string.IsNullOrEmpty(citas.Asunto))
+        {
+            citas.Asunto = "Sin Comentario";
+        }
+        return true;
+    }
+
+    public async Task Guardar()
+    {
+        FiltroDeTrabajo = "";
+        await FiltrarTrabajo();
+        citas.Monto = MontoT;
+        citas.ClienteId = cliente.ClienteId;
+
+        if (!ValidarGuardar())
+        {
             return;
         }
-        var entradaDevuelta = await response.Content.ReadFromJsonAsync<Citas>();
-        if (entradaDevuelta is not null)
+
+        // Verificar la disponibilidad de colaboradores antes de agregar la cita
+        if (await VerificarDisponibilidadColaboradores())
         {
-            if (DetallesRemovidosProducto.Count > 0)
+            // Asignar las citas a los colaboradores
+            await AsignarCitas();
+
+            // Agregar la cita al cliente (puedes realizar ajustes según tu modelo de datos)
+            var response = await httpClient.PostAsJsonAsync("api/Citas", citas);
+
+            if (!response.IsSuccessStatusCode)
             {
-                foreach (var detalle in DetallesRemovidosProducto)
-                {
-                    await httpClient.DeleteAsync($"api/Citas/DeleteDetalles/{detalle.DetalleId}");
-                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
-                    reducir!.Existencia = reducir.Existencia + detalle.CantidadUtilizada;
-                    using var responseDetalleEliminado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
-                }
+                // Manejar errores al agregar la cita
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "No se pudo Guardar correctamente, verifique los campos",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
             }
-            if (ListaDetalles.Count > 0)
+
+            // Cita agregada correctamente
+            var CitaDevuelta = await response.Content.ReadFromJsonAsync<Citas>();
+            if (CitaDevuelta is not null)
             {
-                foreach (var detalle in ListaDetalles)
-                {
-                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
-                    reducir!.Existencia = reducir.Existencia - detalle.CantidadUtilizada;
-                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
-                }
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Éxito",
+                        Detail = "Cita Guardada Correctamente",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+
+                // Restablecer el estado y otros valores después de guardar la cita
+                citas = CitaDevuelta;
+                Nuevo();
+                StateHasChanged();
             }
+        }
+        else
+        {
+            // Notificar al usuario si no hay colaboradores disponibles
             var mensaje = new NotificationMessage
                 {
-                    Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "cita Guardada Correctamente",
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No hay colaboradores disponibles para las horas seleccionadas",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
-            citas = entradaDevuelta;
-            StateHasChanged();
-            this.Nuevo();
         }
     }
+
+   
+
+
 
     public void Nuevo()
     {
@@ -479,11 +535,12 @@
             if (DetallesRemovidosProducto.Any(d => d.DetalleId == DetallesCitas.DetalleId))
                 DetallesRemovidosProducto.Remove(DetallesCitas);
             DetallesCitas = new CitasDetalles();
-            MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+            CalcularMonto();
 
         }
         StateHasChanged();
     }
+
 
     public void RemoverDetalle(CitasDetalles detalle)
     {
@@ -492,30 +549,90 @@
         DetallesRemovidosProducto.Add(detalle);
         if (ListaDetalles.Any(d => d.DetalleId == detalle.DetalleId))
             ListaDetalles.Remove(detalle);
-        MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada);
+        CalcularMonto();
         StateHasChanged();
     }
-
-    public void RemoverDetalle(TiposDeTrabajos detalle)
+    //Con una sobrecarga de metodos se hace lo mismo que con el de arriba
+    public async void RemoverDetalle(TiposDeTrabajos detalle)
     {
-        DetallesTrabajo = detalle;
-        citas.TipoDeTrabajo.Remove(detalle);
+        TrabajoElegido = detalle.TipoDeTrabajoId;
+        citas.TiposDeTrabajos.Remove(detalle);
         DetallesRemovidosTrabajo.Add(detalle);
-        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
+        TiempoEstimado = citas.TiposDeTrabajos.Sum(e => e.TiempoEstimado);
         if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == detalle.TipoDeTrabajoId))
             DetallesRemovidosTrabajo.Remove(detalle);
+        await CalcularMonto();
         StateHasChanged();
     }
 
 
-    public async Task AgregarDetalleTrabajo(TiposDeTrabajos Trabajo)
+    public async Task AgregarDetalleTrabajo()
     {
-        citas.TipoDeTrabajo.Add(Trabajo);
-        ListaTiposdeTrabajos.Remove(Trabajo);
-        if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == Trabajo.TipoDeTrabajoId))
-            DetallesRemovidosTrabajo.Remove(Trabajo);
-        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
-        StateHasChanged();
+        var ListaTiposdeTrabajosCompleta = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposDeTrabajos");
+        var Trabajo = ListaTiposdeTrabajosCompleta.FirstOrDefault(t => t.TipoDeTrabajoId == TrabajoElegido);
+        if(citas.TiposDeTrabajos.Count==1)
+        {
+            NotificationMessage mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Solo se puede agregar un trabajo por cita",
+                    Duration = 4_000
+                };
+                notificationService.Notify(mensaje);
+                return;
+        }
+        if(ValidarAgregarDetalleTrabajo())
+        {
+            citas.TiposDeTrabajos.Add(Trabajo);
+            TrabajoElegido = Trabajo.TipoDeTrabajoId;
+            ListaTiposdeTrabajos.Remove(Trabajo);
+            if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == Trabajo.TipoDeTrabajoId))
+                DetallesRemovidosTrabajo.Remove(Trabajo);
+            await CalcularMonto();
+            StateHasChanged();
+        }
+    }
+
+    public bool ValidarAgregarDetalleTrabajo()
+    {
+        if (TrabajoElegido<= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Seleccione el trabajo que desea agregar.",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        if (citas.TiposDeTrabajos.Any(d => d.TipoDeTrabajoId == TrabajoElegido))
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Ya se ha agregado este trabajo anterormente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        if (citas.TiposDeTrabajos.Any(d => d.TipoDeTrabajoId == TrabajoElegido))
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Ya se ha agregado este trabajo anterormente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        return true;
     }
 
     private async Task<Productos> BuscarProductos(int ProductoId)
@@ -527,11 +644,101 @@
 
     public async Task CargarTrabajos()
     {
-        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposdeTrabajos");
+        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposDeTrabajos");
         if (trabajos is not null)
         {
             ListaTiposdeTrabajos = trabajos;
         }
     }
+    public async Task CargarColaboradores()
+    {
+        var colaboradores = await httpClient.GetFromJsonAsync<List<Colaboradores>>("api/Colaboradores");
+        if (colaboradores is not null)
+        {
+            ListaColaboradores = colaboradores;
+        }
+    }
+    public async Task FiltrarTrabajo()
+    {
+        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposDeTrabajos");
+        if (trabajos is not null)
+        {
+            ListaTiposdeTrabajos = trabajos.Where(t => t.Descripcion.ToLower().Contains(FiltroDeTrabajo.ToLower())).ToList();
+        }
+    }
+
+    public async Task FiltrarProducto()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (productos is not null)
+        {
+            ListaProductos = productos.Where(p => p.Nombre.ToLower().Contains(FiltroDeProducto.ToLower())).ToList();
+        }
+    }
+
+    public Task CalcularMonto()
+    { 
+        MontoT = citas.CitasDetalles.Sum(e => @ObtenerPrecio(e.ProductoId) * e.CantidadUtilizada) + citas.TiposDeTrabajos.Sum(T => T.Precio);
+
+        return Task.CompletedTask;
+    }
+
+    // En el método Guardar(), reemplaza la llamada a VerificarDisponibilidadColaboradores() con la siguiente lógica:
+    private async Task<bool> VerificarDisponibilidadColaboradores()
+    {
+        var Trabajo = citas.TiposDeTrabajos.FirstOrDefault();
+
+        // Verificar la disponibilidad de colaboradores para cada tipo de trabajo
+        var colaboradorDisponible = ObtenerColaboradorDisponible(ListaColaboradores, Trabajo, citas.Fecha);
+
+        if (colaboradorDisponible == null)
+        {
+            return false; // Devolver falso si no hay colaboradores disponibles
+        }
+        else
+        {
+            // Asignar colaborador y ajustar la fecha de la cita
+            citas.ColaboradorId = colaboradorDisponible.ColaboradorId;
+            await AsignarCitas(); // Agregar la cita al colaborador
+        }
+
+        return true; // Todos los colaboradores están disponibles
+    }
+
+    // Modifica el método ObtenerColaboradorDisponible():
+    private Colaboradores ObtenerColaboradorDisponible(List<Colaboradores> colaboradores, TiposDeTrabajos trabajo, DateTime fecha)
+    {
+        var horaInicio = fecha.Date.AddHours(8); // Inicio de la jornada laboral
+        // Recorrer la hora en intervalos de 20 minutos
+        for (int i = 0; i < 9 * 3; i++) // 9 horas * 3 (intervalos de 20 minutos)
+        {
+
+
+            foreach (var colaborador in colaboradores)
+            {
+                // Verificar si el colaborador puede realizar el tipo de trabajo
+                if (colaborador.TipoDeTrabajo.Any(t => t.TipoDeTrabajoId == trabajo.TipoDeTrabajoId))
+                {
+                    // Verificar si el colaborador no tiene citas en la misma franja horaria
+                    if (!colaborador.Citas.Any(c => c.Fecha >= horaInicio && c.Fecha <= horaInicio.AddMinutes(trabajo.TiempoEstimado)))
+                    {
+                        // El colaborador está disponible en la franja horaria seleccionada
+                        return colaborador;
+                    }
+                }
+            }
+            horaInicio.AddMinutes(20);
+        }
+
+        return null; // Si no se encuentra ningún colaborador disponible
+    }
+
+    public async Task AsignarCitas()
+    {
+        var colaborador = await httpClient.GetFromJsonAsync<Colaboradores>($"api/Colaboradores/{citas.ColaboradorId}");
+        colaborador.Citas.Add(citas);
+        await httpClient.PutAsJsonAsync<Colaboradores>($"api/Colaboradores/{citas.ColaboradorId}", colaborador);
+    }
+
 
 }

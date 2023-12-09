@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguaMariaSolution.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20231206032320_Creando_Clase_TiposDeTrabajo")]
-    partial class Creando_Clase_TiposDeTrabajo
+    [Migration("20231209083733_prueba4 para atras")]
+    partial class prueba4paraatras
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,6 +84,9 @@ namespace AguaMariaSolution.Server.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Llego")
+                        .HasColumnType("INTEGER");
+
                     b.Property<float>("Monto")
                         .HasColumnType("REAL");
 
@@ -150,6 +153,28 @@ namespace AguaMariaSolution.Server.Migrations
                     b.HasKey("ClienteId");
 
                     b.ToTable("Clientes");
+
+                    b.HasData(
+                        new
+                        {
+                            ClienteId = 1,
+                            Apellido = "Doe",
+                            Baneado = false,
+                            Clave = "Password123",
+                            Email = "john.doe@example.com",
+                            Nombre = "John",
+                            Teléfono = "1234567890"
+                        },
+                        new
+                        {
+                            ClienteId = 2,
+                            Apellido = "Doe",
+                            Baneado = false,
+                            Clave = "Password456",
+                            Email = "jane.doe@example.com",
+                            Nombre = "Jane",
+                            Teléfono = "9876543210"
+                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Colaboradores", b =>
@@ -187,6 +212,30 @@ namespace AguaMariaSolution.Server.Migrations
                     b.HasKey("ColaboradorId");
 
                     b.ToTable("Colaboradores");
+
+                    b.HasData(
+                        new
+                        {
+                            ColaboradorId = 1,
+                            Activo = true,
+                            Apellido = "Lastname1",
+                            Celular = "4445556666",
+                            Dirección = "Employee1 Address",
+                            Email = "employee1@example.com",
+                            Nombre = "Employee1",
+                            Teléfono = "1112223333"
+                        },
+                        new
+                        {
+                            ColaboradorId = 2,
+                            Activo = true,
+                            Apellido = "Lastname2",
+                            Celular = "0001112222",
+                            Dirección = "Employee2 Address",
+                            Email = "employee2@example.com",
+                            Nombre = "Employee2",
+                            Teléfono = "7778889999"
+                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Empleados", b =>
@@ -339,18 +388,104 @@ namespace AguaMariaSolution.Server.Migrations
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.TiposDeTrabajos", b =>
                 {
                     b.Property<int>("TipoDeTrabajoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CitasCitaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ColaboradoresColaboradorId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<float>("Precio")
+                        .HasColumnType("REAL");
+
                     b.Property<int>("TiempoEstimado")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TipoDeTrabajoId");
 
+                    b.HasIndex("CitasCitaId");
+
+                    b.HasIndex("ColaboradoresColaboradorId");
+
                     b.ToTable("TiposDeTrabajos");
+
+                    b.HasData(
+                        new
+                        {
+                            TipoDeTrabajoId = 1,
+                            Descripcion = "Limpieza",
+                            Precio = 500f,
+                            TiempoEstimado = 20
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 2,
+                            Descripcion = "Manicura",
+                            Precio = 500f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 3,
+                            Descripcion = "Pedicura",
+                            Precio = 500f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 4,
+                            Descripcion = "Masaje",
+                            Precio = 700f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 5,
+                            Descripcion = "Depilacion",
+                            Precio = 500f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 6,
+                            Descripcion = "Tratamiento",
+                            Precio = 900f,
+                            TiempoEstimado = 35
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 7,
+                            Descripcion = "Maquillaje",
+                            Precio = 1500f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 8,
+                            Descripcion = "Tinte",
+                            Precio = 1000f,
+                            TiempoEstimado = 45
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 9,
+                            Descripcion = "Micropigmentacion",
+                            Precio = 1000f,
+                            TiempoEstimado = 70
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 10,
+                            Descripcion = "Extensiones",
+                            Precio = 1000f,
+                            TiempoEstimado = 30
+                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Citas", b =>
@@ -380,23 +515,19 @@ namespace AguaMariaSolution.Server.Migrations
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.TiposDeTrabajos", b =>
                 {
                     b.HasOne("AguaMariaSolution.Shared.Models.Citas", null)
-                        .WithMany("TipoDeTrabajo")
-                        .HasForeignKey("TipoDeTrabajoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("TiposDeTrabajos")
+                        .HasForeignKey("CitasCitaId");
 
                     b.HasOne("AguaMariaSolution.Shared.Models.Colaboradores", null)
                         .WithMany("TipoDeTrabajo")
-                        .HasForeignKey("TipoDeTrabajoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ColaboradoresColaboradorId");
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Citas", b =>
                 {
                     b.Navigation("CitasDetalles");
 
-                    b.Navigation("TipoDeTrabajo");
+                    b.Navigation("TiposDeTrabajos");
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Clientes", b =>

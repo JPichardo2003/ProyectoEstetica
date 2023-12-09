@@ -5,7 +5,7 @@
 namespace AguaMariaSolution.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Creando_Clases_Admin_Empleado : Migration
+    public partial class prueba4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

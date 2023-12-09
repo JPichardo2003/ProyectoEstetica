@@ -17,31 +17,10 @@ namespace AguaMariaSolution.Server.Controllers
         }
         [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginAMS login)
+            public async Task<IActionResult> Login([FromBody] LoginAMS login)
         {
             SesionAMS sesionAMS = new SesionAMS();
 
-            if (login.Correo == "A" && login.Clave == "A")
-            {
-                sesionAMS.Nombre = "PAPADIO";
-                sesionAMS.Correo = "PAPADIO@CIELO.GOD";
-                sesionAMS.Rol = "Administrador";
-                return StatusCode(StatusCodes.Status200OK, sesionAMS);
-            }
-            if (login.Correo == "Ae" && login.Clave == "A")
-            {
-                sesionAMS.Nombre = "PAPADIOEMPLEADO";
-                sesionAMS.Correo = "PAPADIO@EMPLEADO.GOD";
-                sesionAMS.Rol = "Empleado";
-                return StatusCode(StatusCodes.Status200OK, sesionAMS);
-            }
-            if (login.Correo == "e" && login.Clave == "A")
-            {
-                sesionAMS.Nombre = "PAPADIOEMPLEADO";
-                sesionAMS.Correo = "PAPADIO@EMPLEADO.GOD";
-                sesionAMS.Rol = "Cliente";
-                return StatusCode(StatusCodes.Status200OK, sesionAMS);
-            }
             var adminEncontrado = await _context.Admins.FirstOrDefaultAsync(e => e.Email == login.Correo);
 
             if (adminEncontrado != null && login.Clave == adminEncontrado.Contraseña)
@@ -59,11 +38,9 @@ namespace AguaMariaSolution.Server.Controllers
                 sesionAMS.Nombre = empleadoEncontrado.Nombre;
                 sesionAMS.Correo = login.Correo;
                 sesionAMS.Rol = "Empleado";
+                return StatusCode(StatusCodes.Status200OK, sesionAMS);
             }
-            else if (empleadoEncontrado == null || login.Clave != empleadoEncontrado.Clave)
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, "Usuario o Contraseña incorrecta");
-            }
+
             var clienteEncontrado = await _context.Clientes.FirstOrDefaultAsync(e => e.Email == login.Correo);
 
             if (clienteEncontrado != null && clienteEncontrado.Clave == login.Clave)
@@ -71,8 +48,11 @@ namespace AguaMariaSolution.Server.Controllers
                 sesionAMS.Nombre = clienteEncontrado.Nombre;
                 sesionAMS.Correo = login.Correo;
                 sesionAMS.Rol = "Cliente";
+                return StatusCode(StatusCodes.Status200OK, sesionAMS);
             }
-            return StatusCode(StatusCodes.Status200OK, sesionAMS);
+            return StatusCode(StatusCodes.Status401Unauthorized, "Usuario o contraseña incorrecta");
+
+
         }
     }
 }
