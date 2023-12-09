@@ -42,9 +42,61 @@ namespace AguaMariaSolution.Server.DAL
                 new Empleados() {EmpleadoId = 2, Nombre = "Luis", Apellido="Nose", Email="Luis@magicmirror.com", Clave="Cl@ve123", Celular="0123456789", Teléfono="0123456789", Dirección="Su casa"}
             });
 
+            modelBuilder.Entity<Clientes>().HasData(new List<Clientes>
+            {
+                new Clientes
+                {
+                    ClienteId = 1,
+                    Nombre = "John",
+                    Apellido = "Doe",
+                    Email = "john.doe@example.com",
+                    Clave = "Password123",
+                    Teléfono = "1234567890",
+                    // Add other properties
+                },
+                new Clientes
+                {
+                    ClienteId = 2,
+                    Nombre = "Jane",
+                    Apellido = "Doe",
+                    Email = "jane.doe@example.com",
+                    Clave = "Password456",
+                    Teléfono = "9876543210",
+                    // Add other properties
+                },
+                // Add more client data as needed
+            });
+
+                        modelBuilder.Entity<Colaboradores>().HasData(new List<Colaboradores>
+            {
+                new Colaboradores
+                {
+                    ColaboradorId = 1,
+                    Nombre = "Employee1",
+                    Apellido = "Lastname1",
+                    Email = "employee1@example.com",
+                    Dirección = "Employee1 Address",
+                    Teléfono = "1112223333",
+                    Celular = "4445556666",
+                    // Add other properties
+                },
+                new Colaboradores
+                {
+                    ColaboradorId = 2,
+                    Nombre = "Employee2",
+                    Apellido = "Lastname2",
+                    Email = "employee2@example.com",
+                    Dirección = "Employee2 Address",
+                    Teléfono = "7778889999",
+                    Celular = "0001112222",
+                    // Add other properties
+                },
+                // Add more collaborator data as needed
+            });
+
             modelBuilder.Entity<TiposDeTrabajos>().HasData(new List<TiposDeTrabajos>()
             {
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 1, TiempoEstimado = 20, Descripcion = "Limpieza Facial", Precio = 300},
+                new TiposDeTrabajos()  {TipoDeTrabajoId = 1, Precio = 300, TiempoEstimado = 20, Descripcion = "Limpieza Facial"},
                 new TiposDeTrabajos()  {TipoDeTrabajoId = 2, TiempoEstimado = 40, Descripcion = "Manicura", Precio = 400},
                 new TiposDeTrabajos()  {TipoDeTrabajoId = 3, TiempoEstimado = 40, Descripcion = "Pedicura", Precio = 400},
                 new TiposDeTrabajos()  {TipoDeTrabajoId = 4, TiempoEstimado = 60, Descripcion = "Masaje", Precio = 700},

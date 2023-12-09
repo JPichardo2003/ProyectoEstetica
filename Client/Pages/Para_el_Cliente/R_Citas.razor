@@ -5,7 +5,7 @@
 @inject NotificationService notificationService;
 @inject AuthenticationStateProvider autenticacionProvider
 @inject NavigationManager navManager
-@attribute [Authorize(Roles = "Administrador, Empleado,Cliente")]
+@attribute [Authorize(Roles = "Cliente")]
 
 <EditForm Model="citas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -14,7 +14,6 @@
             <img src="zyroimage.png" class="img-logo" />
             <h1>Registro Citas</h1>
         </div>
-        <div>@cliente.Nombre</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
@@ -42,19 +41,44 @@
         </div>
         @*Detalles:*@
         @*Detalle Trabajos*@
-        <table class='table table-responsive table-striped'>
-            <div class="card card-header">
-                <h3>Trabajos Elegidos</h3>
+        <div class="card card-header">
+            <h3>Trabajos Elegidos</h3>
+        </div>
+        
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Trabajo</label>
+                    <InputSelect @bind-Value="TrabajoElegido" class="form-select">
+                        <option value="0" hidden="hidden">Seleccione</option>
+                        @foreach (var p in ListaTiposdeTrabajos)
+                        {
+                            <option value="@p.TipoDeTrabajoId">@p.Descripcion</option>
+                        }
+                    </InputSelect>
+                </div>
+                
+                <div class="col-md-6">
+
+                <label>Filtrar por nombre</label>
+                <div class="input-group">
+                   
+                    <InputText @bind-Value="FiltroDeTrabajo" @onblur="FiltrarTrabajo" class="form-control"></InputText>
+                    <button type="button" class="btn btn-success" @onclick="AgregarDetalleTrabajo"><i class="oi oi-plus" />Add</button>
+                </div>
+                </div>
             </div>
+        <table class='table table-responsive table-striped'>
             <thead>
                 <tr>
                     <th>Trabajo</th>
                     <th>Tiempo Estimado</th>
+                    <th>Precio</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var detalle in citas.TipoDeTrabajo)
+                @foreach (var detalle in citas.TiposDeTrabajos)
                 {
 
                     <tr>
@@ -68,39 +92,15 @@
                 <td>Tiempo Estimado Total: @TiempoEstimado</td>
             </tr>
         </table>
-        <table class='table table-responsive table-striped'>
-            <div class="card card-header">
-                <h3>Elija lo que desea hacer</h3>
-            </div>
-            <thead>
-                <tr>
-                    <th>Trabajo</th>
-                    <th>Tiempo Estimado</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var detalle in ListaTiposdeTrabajos)
-                {
 
-                    <tr>
-                        <td>@detalle.Descripcion</td>
-                        <td>@detalle.TiempoEstimado</td>
-                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => AgregarDetalleTrabajo(detalle))></button></td>
-                    </tr>
-                }
-            </tbody>
-            <tr>
-                <td>Tiempo Estimado Total: @TiempoEstimado</td>
-            </tr>
-        </table>
+
         @*Detalle Producto*@
         <div class="card card-header">
             <h3>Productos utilizados</h3>
         </div>
         <div class="card-body border border-1">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label>Producto</label>
                     <InputSelect @bind-Value="DetallesCitas.ProductoId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -111,8 +111,11 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => DetallesCitas.ProductoId)" />
                 </div>
-                
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label>Filtrar por nombre</label>
+                    <InputText @bind-Value="FiltroDeProducto" @onblur="FiltrarProducto" class="form-control"></InputText>
+                </div>
+                <div class="col-md-4">
                     <label>Cantidad</label>
                     <div class="input-group">
                         <InputNumber @bind-Value="DetallesCitas.CantidadUtilizada" class="form-control"></InputNumber>
@@ -187,7 +190,10 @@
     public List<TiposDeTrabajos> ListaTiposdeTrabajos { get; set; } = new List<TiposDeTrabajos>();
     public List<TiposDeTrabajos> DetallesRemovidosTrabajo { get; set; } = new List<TiposDeTrabajos>();
 
+    public int TrabajoElegido { get; set; } = 0;
 
+    public string FiltroDeTrabajo { get; set; } = "";
+    public string FiltroDeProducto { get; set; } = "";
     public float MontoT { get; set; } = 0;
     public int TiempoEstimado { get; set; } = 0;
     public bool idVacio;
@@ -278,17 +284,38 @@
 
     public async Task getUsuario()
     {
+        if (autenticacionProvider == null || httpClient == null)
+        {
+            return;
+        }
+
         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
         usuario = await autenticacionExt.GetAuthenticationStateAsync();
     }
 
     public async Task getCliente()
     {
-        var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
-        // Asegúrate de ajustar la comparación según la estructura real de tus reclamaciones
-        var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+        if (httpClient == null || usuario == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+            var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            if (correoUsuario != null)
+            {
+                this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching cliente data: {ex.Message}");
+        }
     }
+
 
     public async Task getTiposdeTrabajos()
     {
@@ -498,24 +525,55 @@
 
     public void RemoverDetalle(TiposDeTrabajos detalle)
     {
-        DetallesTrabajo = detalle;
-        citas.TipoDeTrabajo.Remove(detalle);
+        TrabajoElegido = detalle.TipoDeTrabajoId;
+        citas.TiposDeTrabajos.Remove(detalle);
         DetallesRemovidosTrabajo.Add(detalle);
-        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
+        TiempoEstimado = citas.TiposDeTrabajos.Sum(e => e.TiempoEstimado);
         if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == detalle.TipoDeTrabajoId))
             DetallesRemovidosTrabajo.Remove(detalle);
         StateHasChanged();
     }
 
 
-    public async Task AgregarDetalleTrabajo(TiposDeTrabajos Trabajo)
+    public async Task AgregarDetalleTrabajo()
     {
-        citas.TipoDeTrabajo.Add(Trabajo);
+        var Trabajo = ListaTiposdeTrabajos.FirstOrDefault(t => t.TipoDeTrabajoId == TrabajoElegido);
+        if(!ValidarAgregarDetalleTrabajo())
+            citas.TiposDeTrabajos.Add(Trabajo);
         ListaTiposdeTrabajos.Remove(Trabajo);
         if (DetallesRemovidosTrabajo.Any(d => d.TipoDeTrabajoId == Trabajo.TipoDeTrabajoId))
             DetallesRemovidosTrabajo.Remove(Trabajo);
-        TiempoEstimado = citas.TipoDeTrabajo.Sum(e => e.TiempoEstimado);
+        TiempoEstimado = citas.TiposDeTrabajos.Sum(e => e.TiempoEstimado);
         StateHasChanged();
+    }
+
+    public bool ValidarAgregarDetalleTrabajo()
+    {
+        if (TrabajoElegido<= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Seleccione un trabajo",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        if (citas.TiposDeTrabajos.Any(d => d.TipoDeTrabajoId == TrabajoElegido))
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Ya se ha agregado este trabajo anterormente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        return true;
     }
 
     private async Task<Productos> BuscarProductos(int ProductoId)
@@ -527,10 +585,28 @@
 
     public async Task CargarTrabajos()
     {
-        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposdeTrabajos");
+        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposDeTrabajos");
         if (trabajos is not null)
         {
             ListaTiposdeTrabajos = trabajos;
+        }
+    }
+
+    public async Task FiltrarTrabajo()
+    {
+        var trabajos = await httpClient.GetFromJsonAsync<List<TiposDeTrabajos>>("api/TiposDeTrabajos");
+        if (trabajos is not null)
+        {
+            ListaTiposdeTrabajos = trabajos.Where(t => t.Descripcion.ToLower().Contains(FiltroDeTrabajo.ToLower())).ToList();
+        }
+    }
+
+    public async Task FiltrarProducto()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (productos is not null)
+        {
+            ListaProductos = productos.Where(p => p.Nombre.ToLower().Contains(FiltroDeProducto.ToLower())).ToList();
         }
     }
 

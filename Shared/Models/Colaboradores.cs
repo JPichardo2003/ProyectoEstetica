@@ -36,8 +36,7 @@ namespace AguaMariaSolution.Shared.Models
 
         public bool Activo { get; set; } = true;
 
-        [ForeignKey("TipoDeTrabajoId")]
-        public ICollection<TiposDeTrabajos> TipoDeTrabajo { get; set; } = new List<TiposDeTrabajos>();
+        public List<TiposDeTrabajos> TipoDeTrabajo { get; set; } = new List<TiposDeTrabajos>();
 
         [ForeignKey("ColaboradorId")]
         public ICollection<Citas> Citas { get; set; } = new List<Citas>();

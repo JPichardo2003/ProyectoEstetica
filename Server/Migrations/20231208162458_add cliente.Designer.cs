@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AguaMariaSolution.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20231206032320_Creando_Clase_TiposDeTrabajo")]
-    partial class Creando_Clase_TiposDeTrabajo
+    [Migration("20231208162458_add cliente")]
+    partial class addcliente
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,6 +84,9 @@ namespace AguaMariaSolution.Server.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Llego")
+                        .HasColumnType("INTEGER");
+
                     b.Property<float>("Monto")
                         .HasColumnType("REAL");
 
@@ -150,6 +153,28 @@ namespace AguaMariaSolution.Server.Migrations
                     b.HasKey("ClienteId");
 
                     b.ToTable("Clientes");
+
+                    b.HasData(
+                        new
+                        {
+                            ClienteId = 1,
+                            Apellido = "Doe",
+                            Baneado = false,
+                            Clave = "Password123",
+                            Email = "john.doe@example.com",
+                            Nombre = "John",
+                            Teléfono = "1234567890"
+                        },
+                        new
+                        {
+                            ClienteId = 2,
+                            Apellido = "Doe",
+                            Baneado = false,
+                            Clave = "Password456",
+                            Email = "jane.doe@example.com",
+                            Nombre = "Jane",
+                            Teléfono = "9876543210"
+                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Colaboradores", b =>
@@ -187,6 +212,30 @@ namespace AguaMariaSolution.Server.Migrations
                     b.HasKey("ColaboradorId");
 
                     b.ToTable("Colaboradores");
+
+                    b.HasData(
+                        new
+                        {
+                            ColaboradorId = 1,
+                            Activo = true,
+                            Apellido = "Lastname1",
+                            Celular = "4445556666",
+                            Dirección = "Employee1 Address",
+                            Email = "employee1@example.com",
+                            Nombre = "Employee1",
+                            Teléfono = "1112223333"
+                        },
+                        new
+                        {
+                            ColaboradorId = 2,
+                            Activo = true,
+                            Apellido = "Lastname2",
+                            Celular = "0001112222",
+                            Dirección = "Employee2 Address",
+                            Email = "employee2@example.com",
+                            Nombre = "Employee2",
+                            Teléfono = "7778889999"
+                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Empleados", b =>
@@ -339,18 +388,223 @@ namespace AguaMariaSolution.Server.Migrations
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.TiposDeTrabajos", b =>
                 {
                     b.Property<int>("TipoDeTrabajoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CitasCitaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ColaboradoresColaboradorId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<float>("Precio")
+                        .HasColumnType("REAL");
+
                     b.Property<int>("TiempoEstimado")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TipoDeTrabajoId");
 
+                    b.HasIndex("CitasCitaId");
+
+                    b.HasIndex("ColaboradoresColaboradorId");
+
                     b.ToTable("TiposDeTrabajos");
+
+                    b.HasData(
+                        new
+                        {
+                            TipoDeTrabajoId = 1,
+                            Descripcion = "Limpieza Facial",
+                            Precio = 300f,
+                            TiempoEstimado = 20
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 2,
+                            Descripcion = "Manicura",
+                            Precio = 400f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 3,
+                            Descripcion = "Pedicura",
+                            Precio = 400f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 4,
+                            Descripcion = "Masaje",
+                            Precio = 700f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 5,
+                            Descripcion = "Depilacion",
+                            Precio = 500f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 6,
+                            Descripcion = "Tratamiento Facial",
+                            Precio = 500f,
+                            TiempoEstimado = 35
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 7,
+                            Descripcion = "Tratamiento Corporal",
+                            Precio = 600f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 8,
+                            Descripcion = "Tratamiento Capilar",
+                            Precio = 500f,
+                            TiempoEstimado = 35
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 9,
+                            Descripcion = "Maquillaje",
+                            Precio = 1500f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 10,
+                            Descripcion = "Tinte de Pestañas",
+                            Precio = 700f,
+                            TiempoEstimado = 45
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 11,
+                            Descripcion = "Tinte de Cejas",
+                            Precio = 400f,
+                            TiempoEstimado = 45
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 12,
+                            Descripcion = "Micropigmentacion",
+                            Precio = 1000f,
+                            TiempoEstimado = 70
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 13,
+                            Descripcion = "Extensiones de Pestañas",
+                            Precio = 600f,
+                            TiempoEstimado = 30
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 14,
+                            Descripcion = "Extensiones de Cejas",
+                            Precio = 700f,
+                            TiempoEstimado = 30
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 15,
+                            Descripcion = "Extensiones de Uñas",
+                            Precio = 700f,
+                            TiempoEstimado = 30
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 16,
+                            Descripcion = "Uñas Acrilicas Para Manos",
+                            Precio = 1000f,
+                            TiempoEstimado = 45
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 17,
+                            Descripcion = "Uñas Gelish Para Manos",
+                            Precio = 1100f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 18,
+                            Descripcion = "Uñas Esculpidas Para Manos",
+                            Precio = 1200f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 19,
+                            Descripcion = "Uñas Acrigel Para Manos",
+                            Precio = 1300f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 20,
+                            Descripcion = "Uñas Polygel Para Manos",
+                            Precio = 1200f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 21,
+                            Descripcion = "Uñas Acrilgel Para Manos",
+                            Precio = 1200f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 22,
+                            Descripcion = "Uñas Acrilicas Para Pies",
+                            Precio = 1000f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 23,
+                            Descripcion = "Uñas Gelish Para Pies",
+                            Precio = 1100f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 24,
+                            Descripcion = "Uñas Esculpidas Para Pies",
+                            Precio = 1200f,
+                            TiempoEstimado = 50
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 25,
+                            Descripcion = "Uñas Acrigel Para Pies",
+                            Precio = 1300f,
+                            TiempoEstimado = 40
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 26,
+                            Descripcion = "Uñas Polygel Para Pies",
+                            Precio = 1200f,
+                            TiempoEstimado = 60
+                        },
+                        new
+                        {
+                            TipoDeTrabajoId = 27,
+                            Descripcion = "Uñas Acrilgel Para Pies",
+                            Precio = 1200f,
+                            TiempoEstimado = 50
+                        });
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Citas", b =>
@@ -380,23 +634,19 @@ namespace AguaMariaSolution.Server.Migrations
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.TiposDeTrabajos", b =>
                 {
                     b.HasOne("AguaMariaSolution.Shared.Models.Citas", null)
-                        .WithMany("TipoDeTrabajo")
-                        .HasForeignKey("TipoDeTrabajoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("TiposDeTrabajos")
+                        .HasForeignKey("CitasCitaId");
 
                     b.HasOne("AguaMariaSolution.Shared.Models.Colaboradores", null)
                         .WithMany("TipoDeTrabajo")
-                        .HasForeignKey("TipoDeTrabajoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ColaboradoresColaboradorId");
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Citas", b =>
                 {
                     b.Navigation("CitasDetalles");
 
-                    b.Navigation("TipoDeTrabajo");
+                    b.Navigation("TiposDeTrabajos");
                 });
 
             modelBuilder.Entity("AguaMariaSolution.Shared.Models.Clientes", b =>
