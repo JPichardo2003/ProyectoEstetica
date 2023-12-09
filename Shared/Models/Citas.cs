@@ -23,6 +23,6 @@ namespace AguaMariaSolution.Shared.Models
         public List<TiposDeTrabajos>? TiposDeTrabajos { get; set; } = new List<TiposDeTrabajos>();
 
         [ForeignKey("CitaId")]
-        public ICollection<CitasDetalles> CitasDetalles { get; set; } = new List<CitasDetalles>();
+        public ICollection<CitasDetalles>? CitasDetalles { get; set; } = new List<CitasDetalles>();
     }
 }

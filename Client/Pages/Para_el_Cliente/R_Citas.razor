@@ -183,6 +183,7 @@
     public List<Colaboradores> ListaColaboradores { get; set; } = new List<Colaboradores>();
     public int TrabajoElegido { get; set; } = 0;
 
+
     public string FiltroDeTrabajo { get; set; } = "";
     public string FiltroDeProducto { get; set; } = "";
     public float MontoT { get; set; } = 0;
@@ -276,22 +277,18 @@
             notificationService.Notify(mensaje);
             return;
         }
-    }
-
-    public async Task getUsuario()
-    {
         if (autenticacionProvider == null || httpClient == null)
         {
             // Handle null cases
             return;
         }
 
-        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        usuario = await autenticacionExt.GetAuthenticationStateAsync();
     }
 
-    public async Task getCliente()
+    public async Task getUsuario()
     {
+        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        usuario = await autenticacionExt.GetAuthenticationStateAsync();
         if (httpClient == null || usuario == null)
         {
             // Handle null cases
@@ -310,6 +307,10 @@
 
     }
 
+
+        var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+    }
 
     public async Task getTiposdeTrabajos()
     {
