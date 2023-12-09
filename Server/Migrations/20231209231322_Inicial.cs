@@ -190,6 +190,24 @@ namespace AguaMariaSolution.Server.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Clientes",
+                columns: new[] { "ClienteId", "Apellido", "Baneado", "Clave", "Email", "Nombre", "Teléfono" },
+                values: new object[,]
+                {
+                    { 1, "Doe", false, "Password123", "john.doe@example.com", "John", "1234567890" },
+                    { 2, "Doe", false, "Password456", "jane.doe@example.com", "Jane", "9876543210" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Colaboradores",
+                columns: new[] { "ColaboradorId", "Activo", "Apellido", "Celular", "Dirección", "Email", "Nombre", "Teléfono" },
+                values: new object[,]
+                {
+                    { 1, true, "Lastname1", "4445556666", "Employee1 Address", "employee1@example.com", "Employee1", "1112223333" },
+                    { 2, true, "Lastname2", "0001112222", "Employee2 Address", "employee2@example.com", "Employee2", "7778889999" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Empleados",
                 columns: new[] { "EmpleadoId", "Apellido", "Celular", "Clave", "Dirección", "Email", "Nombre", "Teléfono" },
                 values: new object[,]
@@ -217,33 +235,16 @@ namespace AguaMariaSolution.Server.Migrations
                 columns: new[] { "TipoDeTrabajoId", "CitasCitaId", "ColaboradoresColaboradorId", "Descripcion", "Precio", "TiempoEstimado" },
                 values: new object[,]
                 {
-                    { 1, null, null, "Limpieza Facial", 300f, 20 },
+                    { 1, null, null, "Limpieza", 300f, 20 },
                     { 2, null, null, "Manicura", 400f, 40 },
                     { 3, null, null, "Pedicura", 400f, 40 },
                     { 4, null, null, "Masaje", 700f, 60 },
                     { 5, null, null, "Depilacion", 500f, 40 },
-                    { 6, null, null, "Tratamiento Facial", 500f, 35 },
-                    { 7, null, null, "Tratamiento Corporal", 600f, 40 },
-                    { 8, null, null, "Tratamiento Capilar", 500f, 35 },
-                    { 9, null, null, "Maquillaje", 1500f, 60 },
-                    { 10, null, null, "Tinte de Pestañas", 700f, 45 },
-                    { 11, null, null, "Tinte de Cejas", 400f, 45 },
-                    { 12, null, null, "Micropigmentacion", 1000f, 70 },
-                    { 13, null, null, "Extensiones de Pestañas", 600f, 30 },
-                    { 14, null, null, "Extensiones de Cejas", 700f, 30 },
-                    { 15, null, null, "Extensiones de Uñas", 700f, 30 },
-                    { 16, null, null, "Uñas Acrilicas Para Manos", 1000f, 45 },
-                    { 17, null, null, "Uñas Gelish Para Manos", 1100f, 50 },
-                    { 18, null, null, "Uñas Esculpidas Para Manos", 1200f, 50 },
-                    { 19, null, null, "Uñas Acrigel Para Manos", 1300f, 50 },
-                    { 20, null, null, "Uñas Polygel Para Manos", 1200f, 40 },
-                    { 21, null, null, "Uñas Acrilgel Para Manos", 1200f, 60 },
-                    { 22, null, null, "Uñas Acrilicas Para Pies", 1000f, 50 },
-                    { 23, null, null, "Uñas Gelish Para Pies", 1100f, 50 },
-                    { 24, null, null, "Uñas Esculpidas Para Pies", 1200f, 50 },
-                    { 25, null, null, "Uñas Acrigel Para Pies", 1300f, 40 },
-                    { 26, null, null, "Uñas Polygel Para Pies", 1200f, 60 },
-                    { 27, null, null, "Uñas Acrilgel Para Pies", 1200f, 50 }
+                    { 6, null, null, "Tratamiento", 500f, 35 },
+                    { 7, null, null, "Maquillaje", 1500f, 60 },
+                    { 8, null, null, "Tinte", 1000f, 45 },
+                    { 9, null, null, "Extensiones", 7000f, 30 },
+                    { 10, null, null, "Uñas", 1000f, 50 }
                 });
 
             migrationBuilder.CreateIndex(

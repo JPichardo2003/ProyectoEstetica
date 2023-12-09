@@ -294,23 +294,18 @@
             // Handle null cases
             return;
         }
-
-
-        var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
-
-        var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-
-        if (correoUsuario != null)
+    }
+        public async Task getCliente() 
         {
-            this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+            var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+
+            var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            if (correoUsuario != null)
+            {
+                this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
+            }
         }
-
-    }
-
-
-        var correoUsuario = usuario.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        this.cliente = cliente.FirstOrDefault(c => c.Email == correoUsuario);
-    }
 
     public async Task getTiposdeTrabajos()
     {
@@ -381,42 +376,42 @@
         {
             return;
         }
-        Citas citatemporal = new Citas(){CitaId = citas.CitaId, Fecha = citas.Fecha, Asunto = citas.Asunto, Monto = citas.Monto, ClienteId = citas.ClienteId, ColaboradorId = colaboradorId};
+        Citas citatemporal = new Citas() { CitaId = citas.CitaId, Fecha = citas.Fecha, Asunto = citas.Asunto, Monto = citas.Monto, ClienteId = citas.ClienteId, ColaboradorId = colaboradorId };
         citatemporal.CitasDetalles = citas.CitasDetalles;
         citatemporal.TiposDeTrabajos = citas.TiposDeTrabajos;
         using var response = await httpClient.PostAsJsonAsync("api/Citas", citatemporal);
 
 
-            if (!response.IsSuccessStatusCode)
-            {
-                // Manejar errores al agregar la cita
-                var mensaje = new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Error,
-                        Summary = "Error",
-                        Detail = "No se pudo Guardar correctamente, verifique los campos",
-                        Duration = 4_000
-                    };
-                notificationService.Notify(mensaje);
-                return;
-            }
-
-            // Cita agregada correctamente
-            var CitaDevuelta = await response.Content.ReadFromJsonAsync<Citas>();
-            if (CitaDevuelta is not null)
-            {
-                var mensaje = new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Success,
-                        Summary = "Éxito",
-                        Detail = "Cita Guardada Correctamente",
-                        Duration = 4_000
-                    };
-                notificationService.Notify(mensaje);
-
-                StateHasChanged();
-            }
+        if (!response.IsSuccessStatusCode)
+        {
+            // Manejar errores al agregar la cita
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo Guardar correctamente, verifique los campos",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
         }
+
+        // Cita agregada correctamente
+        var CitaDevuelta = await response.Content.ReadFromJsonAsync<Citas>();
+        if (CitaDevuelta is not null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Cita Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+
+            StateHasChanged();
+        }
+    }
 
 
 
@@ -670,18 +665,18 @@
 
 
     /*private async Task<bool> VerificarDisponibilidadColaboradores()
-    {
+        {
         var Trabajo = citas.TiposDeTrabajos.FirstOrDefault();
 
         // Verificar la disponibilidad de colaboradores para cada tipo de trabajo
         var colaboradorDisponible = ObtenerColaboradorDisponible(ListaColaboradores, Trabajo, citas.Fecha);
 
         if (colaboradorDisponible == null)
-        {
+            {
             return false; // Devolver falso si no hay colaboradores disponibles
         }
-        else
-        {
+            else
+            {
             // Asignar colaborador y ajustar la fecha de la cita
             citas.ColaboradorId = colaboradorDisponible.ColaboradorId;
             await AsignarCitas(); // Agregar la cita al colaborador
@@ -692,32 +687,31 @@
 
     // Modifica el método ObtenerColaboradorDisponible():
     private Colaboradores ObtenerColaboradorDisponible(List<Colaboradores> colaboradores, TiposDeTrabajos trabajo, DateTime fecha)
-    {
+        {
         var horaInicio = fecha.Date.AddHours(8); // Inicio de la jornada laboral
                                                  // Recorrer la hora en intervalos de 20 minutos
         for (int i = 0; i < 9 * 3; i++) // 9 horas * 3 (intervalos de 20 minutos)
-        {
+            {
 
 
             foreach (var colaborador in colaboradores)
-            {
+                {
                 // Verificar si el colaborador puede realizar el tipo de trabajo
                 if (colaborador.TipoDeTrabajo.Any(t => t.TipoDeTrabajoId == trabajo.TipoDeTrabajoId))
-                {
+                    {
                     // Verificar si el colaborador no tiene citas en la misma franja horaria
                     if (!colaborador.Citas.Any(c => c.Fecha >= horaInicio && c.Fecha <= horaInicio.AddMinutes(trabajo.TiempoEstimado)))
-                    {
+                        {
                         // El colaborador está disponible en la franja horaria seleccionada
                         return colaborador;
-                    }
-                }
+            }
+            }
             }
             horaInicio.AddMinutes(20);
         }
 
         return null; // Si no se encuentra ningún colaborador disponible
-    }
+        }
     */
-
 
 }
