@@ -14,7 +14,7 @@
         <div class="card-body">
             <label>ID:</label>
             <div class="input-group">
-                <InputNumber @bind-Value="productos.ProductoId" class="id-input"></InputNumber>
+                <InputNumber @bind-Value="productos.ProductoId" class="id-input" min="0"></InputNumber>
                 <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
             </div>
             <div class="row">
@@ -35,7 +35,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>Precio:</label>
-                    <InputNumber @bind-Value="productos.Precio" class="form-control"></InputNumber>
+                    <InputNumber @bind-Value="productos.Precio" class="form-control" min="0"></InputNumber>
                     <ValidationMessage For="@(() => productos.Precio)" />
                 </div>
                 <div class="col-md-6">

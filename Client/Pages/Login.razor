@@ -31,7 +31,7 @@
 			width: 350px;
 			margin-top: auto;
 			margin-bottom: auto;
-			background: #800080;
+			background: #c7d5fe;
 			position: relative;
 			display: flex;
 			justify-content: center;
@@ -157,7 +157,7 @@
 		{
 			var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionAMS>();
 
-			if (sesionUsuario.Rol == "Cliente" || sesionUsuario.Rol == "Empleado")
+			if (sesionUsuario.Rol == "Cliente")
 			{
 				var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
 				await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
@@ -169,7 +169,7 @@
 					{
 						Severity = NotificationSeverity.Error,
 						Summary = "Error",
-						Detail = "Acceso no autorizado para este rol",
+						Detail = "Credenciales Incorrectas",
 						Duration = 4_000
 					};
 				notificationService.Notify(mensaje);
