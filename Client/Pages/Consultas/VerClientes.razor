@@ -1,0 +1,68 @@
+﻿﻿
+@page "/ver"
+@page "/ver/{clienteId:int}"
+@inject HttpClient httpClient
+@attribute [Authorize(Roles = "Administrador, Cliente")]
+
+@if (cliente is null)
+{
+	<p>Cargando...</p>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="card shadow-lg">
+            <!-- Encabezado -->
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title">@($"Perfil de {cliente.Nombre} {cliente.Apellido}")</h3>
+            </div>
+
+            <div class="card-body">
+                <!-- Sección: Información Personal -->
+                <section>
+                    <h4>Información Personal</h4>
+                    <dl class="row">
+                        <dt class="col-sm-3">Nombre:</dt>
+                        <dd class="col-sm-9">@cliente.Nombre</dd>
+
+                        <dt class="col-sm-3">Apellido:</dt>
+                        <dd class="col-sm-9">@cliente.Apellido</dd>
+
+                        <dt class="col-sm-3">Teléfono:</dt>
+                        <dd class="col-sm-9">@cliente.Teléfono</dd>
+                    </dl>
+                </section>
+
+                <!-- Sección: Información de Contacto -->
+                <section>
+                    <h4>Información de Contacto</h4>
+                    <dl class="row">
+                        <dt class="col-sm-3">Email:</dt>
+                        <dd class="col-sm-9">@cliente.Email</dd>
+
+                        <dt class="col-sm-3">Clave:</dt>
+                        <dd class="col-sm-9">@cliente.Clave</dd>
+                    </dl>
+                </section>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+	[Parameter]
+	public int clienteId { get; set; }
+	private Clientes cliente { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			cliente = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{clienteId}");
+		}
+		catch (HttpRequestException e)
+		{
+			Console.WriteLine($"Error al obtener detalles de la película: {e.Message}");
+		}
+	}
+}
