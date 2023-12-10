@@ -1,64 +1,209 @@
 ﻿@page "/c_cliente"
 @inject HttpClient httpClient
+@inject NotificationService notificationService
+@attribute [Authorize(Roles = "Administrador, Cliente")]
 
 <div class="card">
-    <div class="card">
+	<div class="card">
 
-        <div class="card-header">
-            <h3> Lista de Clientes  </h3>
-        </div>
+		<div class="card-header">
+			<h3> Lista de Clientes  </h3>
+		</div>
 
-        @if (ListaClientes is not null)
-        {
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>ClienteId</th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Email</th>
-                        <th>Contrase&ntilde;a</th>
-                        <th>Tel&eacute;fono</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in ListaClientes)
-                    {
-                        <tr>
-                            <td>@p.ClienteId</td>
-                            <td>@p.Nombre</td>
-                            <td>@p.Apellido</td>
-                            <td>@p.Email</td>
-                            <td>@p.Clave</td>
-                            <td>@p.Teléfono</td>
-                        </tr>
-                    }
-                    <tr>
-                        <td>Cantidad: @conteo</td>
-                    </tr>
+		<div class="row">
+			<!-- Filtro -->
+			<div class="col-md-4">
+				<label>Filtro</label>
+				<div class="filter-box">
+					<InputSelect class="form-select" @bind-Value="opcion">
+						<option value=1>Sin filtro</option>
+						<option value=2>Colaborador Id</option>
+						<option value=3>Nombre</option>
+					</InputSelect>
+				</div>
+			</div>
 
-                </tbody>
+			<!-- Criterio -->
+			<div class='col-md-6'>
+				@if (opcion == 2)
+				{
+					<label>Criterio</label>
+					<div class="col-md-6">
+						<div class="input-group mb-3">
+							<InputNumber class="form-control" @bind-Value="criterioNum" />
+							<button type="button" class="btn btn-info oi oi-magnifying-glass" @onclick="Filtrar"></button>
+							<button type="button" class="btn btn-outline-primary oi oi-reload" @onclick="ReiniciarFiltro"></button>
+						</div>
+					</div>
+				}
+				else
+				{
+					<label>Criterio</label>
+					<div class="col-md-6">
+						<div class="input-group mb-3">
+							<input id="c_search" type="text" class="form-control" @bind="criterio" disabled="@activarCriterio" />
+							<button type="button" class="btn btn-info oi oi-magnifying-glass" @onclick="Filtrar"></button>
+							<button type="button" class="btn btn-outline-primary oi oi-reload" @onclick="ReiniciarFiltro"></button>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
 
-            </table>
-        }
-    </div>
+		@if (ListaClientes is not null)
+		{
+			<table class="table table-striped table-hover">
+				<thead>
+					<tr>
+						<th>ClienteId</th>
+						<th>Nombre</th>
+						<th>Apellido</th>
+						<th>Email</th>
+						<th>Contrase&ntilde;a</th>
+						<th>Tel&eacute;fono</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var p in ListaClientes)
+					{
+						<tr>
+							<td>@p.ClienteId</td>
+							<td>@p.Nombre</td>
+							<td>@p.Apellido</td>
+							<td>@p.Email</td>
+							<td>@p.Clave</td>
+							<td>@p.Teléfono</td>
+							<td><a href="ver/@p.ClienteId" class="btn btn-outline-info">Info</a></td>
+						</tr>
+					}
+					<tr>
+						<td>Cantidad: @conteo</td>
+					</tr>
+
+				</tbody>
+
+			</table>
+		}
+	</div>
 </div>
 
 @code {
-    public List<Clientes>? ListaClientes { get; set; }
-    public int conteo { get; set; }
+	[Parameter]
+	public List<Clientes>? ListaClientes { get; set; }
+	public Clientes cliente { get; set; }
+	public int conteo { get; set; }
+	public int opcion { get; set; }
+	public bool activarCriterio { get { return opcion == 0; } }
+	public string criterio { get; set; } = string.Empty;
+	private int criterioNum { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Buscar();
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		await Buscar();
+	}
 
-    public async Task Buscar()
-    {
-        ListaClientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
+	public async Task Buscar()
+	{
+		ListaClientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
 
-        conteo = ListaClientes != null ? ListaClientes!.Count() : 0;
-        StateHasChanged();
-    }
+		conteo = ListaClientes != null ? ListaClientes!.Count() : 0;
+		StateHasChanged();
+	}
+
+	void Filtrar()
+	{
+		switch (opcion)
+		{
+			case 1:
+				SinFiltro();
+				break;
+			case 2:
+				FiltrarPorId();
+				break;
+			case 3:
+				FiltrarPorNombre();
+				break;
+		}
+	}
+
+	async Task SinFiltro()
+	{
+		var cliente = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+		if (cliente is not null)
+		{
+			ListaClientes = cliente;
+		}
+		criterio = string.Empty;
+	}
+
+
+	void ReiniciarFiltro()
+	{
+		if (opcion != 0)
+		{
+			SinFiltro();
+			opcion = 0;
+			criterio = string.Empty;
+		}
+	}
+
+	async Task FiltrarPorId()
+	{
+		if (criterioNum > 0)
+		{
+			ListaClientes = ListaClientes.Where(n => n.ClienteId == criterioNum)
+			.ToList();
+
+			if (ListaClientes.Count == 0)
+			{
+				var mensaje = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "No se encontraron resultados",
+						Detail = $"No hay colaboradores con el ID {criterioNum}",
+						Duration = 4_000
+					};
+				notificationService.Notify(mensaje);
+			}
+		}
+		else
+		{
+			// Mostrar notificación si el ID no es válido
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "ID inválido",
+					Detail = "Ingrese un número entero positivo para buscar por ID",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+		}
+	}
+
+
+	void FiltrarPorNombre()
+	{
+		// Verifica si el criterio de búsqueda por nombre no está vacío
+		if (!string.IsNullOrEmpty(criterio))
+		{
+			// Filtra la lista de Colaboradores por el nombre que contiene el criterio
+			ListaClientes = ListaClientes.Where(p => string.IsNullOrWhiteSpace(criterio) || p.Nombre.IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0)
+				.ToList();
+
+			// Verifica si se encontraron resultados
+			if (ListaClientes.Count == 0)
+			{
+				// Muestra una notificación indicando que no se encontraron resultados
+				var mensaje = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "No se encontraron resultados",
+						Detail = $"No hay colaboradores con el nombre que contiene '{criterio}'",
+						Duration = 4_000
+					};
+				notificationService.Notify(mensaje);
+			}
+		}
+	}
 }
