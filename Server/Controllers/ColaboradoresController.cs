@@ -30,7 +30,7 @@ namespace AguaMariaSolution.Server.Controllers
             {
                 return NotFound();
             }
-            return await _context.Colaboradores.Include(c => c.Citas).Include(c => c.TipoDeTrabajo).ToListAsync();
+            return await _context.Colaboradores.Include(c => c.Citas).ToListAsync();
         }
 
         // GET: api/Colaboradores/5
@@ -41,7 +41,7 @@ namespace AguaMariaSolution.Server.Controllers
             {
                 return NotFound();
             }
-            var colaboradores = await _context.Colaboradores.Include(c => c.Citas).Include(c => c.TipoDeTrabajo).Where(e => e.ColaboradorId == id).FirstOrDefaultAsync();
+            var colaboradores = await _context.Colaboradores.Include(c => c.Citas).Where(e => e.ColaboradorId == id).FirstOrDefaultAsync();
             ;
 
             if (colaboradores == null)
@@ -120,7 +120,6 @@ namespace AguaMariaSolution.Server.Controllers
         public async Task<IActionResult> DeleteTrabajo(int colaboradorId, int trabajoId)
         {
             var colaborador = await _context.Colaboradores
-                .Include(c => c.TipoDeTrabajo)
                 .Where(c => c.ColaboradorId == colaboradorId)
                 .FirstOrDefaultAsync();
 
@@ -129,14 +128,6 @@ namespace AguaMariaSolution.Server.Controllers
                 return NotFound("Colaborador no encontrado");
             }
 
-            var trabajo = colaborador.TipoDeTrabajo.FirstOrDefault(t => t.TipoDeTrabajoId == trabajoId);
-
-            if (trabajo == null)
-            {
-                return NotFound("Trabajo no encontrado para el colaborador especificado");
-            }
-
-            colaborador.TipoDeTrabajo.Remove(trabajo);
             await _context.SaveChangesAsync();
 
             return NoContent();

@@ -4,14 +4,20 @@
 @inject AuthenticationStateProvider autenticacionProvider
 @inject NavigationManager navManager
 @using System.Security.Claims
-<div class="card-header row">
-    <div class="col-md-4">
-        <label>Desde: </label>
-        <InputDate @bind-Value="Desde" class="form-control id-input"></InputDate>
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <img src="zyroimage.png" class="img-logo" />
+        <h1>Consulta de citas</h1>
     </div>
-    <div class="col-md-4">
-        <label>Hasta: </label>
-        <InputDate @bind-Value="Hasta" class="form-control id-input"></InputDate>
+    <div class="row">
+        <div class="col-md-2">
+            <label>Desde: </label>
+            <InputDate @bind-Value="Desde" class="form-control id-input"></InputDate>
+        </div>
+        <div class="col-md-2">
+            <label>Hasta: </label>
+            <InputDate @bind-Value="Hasta" class="form-control id-input"></InputDate>
+        </div>
     </div>
     <label>Filtrar Por:</label>
     <div class="col-md-6 input-group filter-input">
@@ -27,7 +33,7 @@
             <option value="4">Asunto</option>
             <option value="5">Monto</option>
         </InputSelect>
-        <div class="input-group-append">
+        <div class="input-group">
             <button type="button" class="btn btn-dark oi oi-magnifying-glass" @onclick="Buscar"></button>
         </div>
     </div>
@@ -51,8 +57,8 @@
                 break;
         }
     </div>
-</div>
 
+    <br />
 @if (Citas is not null)
 {
     <div class="table-responsive">
@@ -118,23 +124,16 @@
                                 <td>@Citas.Asunto</td>
                                 <td>@Citas.Monto</td>
 
-                                <td><a href="C/Registros/Citas/@Citas.CitaId">Ver</a></td>
+                                <td><a href="C/Registros/Citas/@Citas.CitaId"><i class="oi oi-pencil"></i></a></td>
                             </tr>
                         }
-                        <tr>
-                            <td>Conteo: @Conteo</td>
-                            <td></td>
-                            <td></td>
-                            <td>Total: @TotalPesos</td>
-                            <td></td>
-                        </tr>
                     </tbody>
                 </Authorized>
             </AuthorizeView>
         </table>
     </div>
 }
-
+</div>
 
 @code {
 

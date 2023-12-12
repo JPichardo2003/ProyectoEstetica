@@ -40,7 +40,7 @@ namespace AguaMariaSolution.Server.Controllers
             {
                 return NotFound();
             }
-            var citas = await _context.Citas.Include(c => c.CitasDetalles).Include(c => c.TiposDeTrabajos).Where(c => c.CitaId == id).FirstOrDefaultAsync();
+            var citas = await _context.Citas.Include(c => c.CitasDetalles).Where(c => c.CitaId == id).FirstOrDefaultAsync();
 
             if (citas == null)
             {

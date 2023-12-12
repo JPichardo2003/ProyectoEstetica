@@ -14,8 +14,6 @@ namespace AguaMariaSolution.Server.DAL
         public DbSet<Colaboradores> Colaboradores { get; set; }
         public DbSet<CitasDetalles> CitasDetalles { get; set; }
 
-        public DbSet<TiposDeTrabajos> TiposDeTrabajos { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -92,20 +90,6 @@ namespace AguaMariaSolution.Server.DAL
                     // Add other properties
                 },
                 // Add more collaborator data as needed
-            });
-
-            modelBuilder.Entity<TiposDeTrabajos>().HasData(new List<TiposDeTrabajos>()
-            {
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 1, Precio = 300, TiempoEstimado = 20, Descripcion = "Limpieza"},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 2, TiempoEstimado = 40, Descripcion = "Manicura", Precio = 400},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 3, TiempoEstimado = 40, Descripcion = "Pedicura", Precio = 400},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 4, TiempoEstimado = 60, Descripcion = "Masaje", Precio = 700},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 5, TiempoEstimado = 40, Descripcion = "Depilacion", Precio = 500},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 6, TiempoEstimado = 35, Descripcion = "Tratamiento", Precio = 500},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 7, TiempoEstimado = 60, Descripcion = "Maquillaje", Precio = 1500},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 8, TiempoEstimado = 45, Descripcion = "Tinte", Precio = 1000},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 9, TiempoEstimado = 30, Descripcion = "Extensiones", Precio = 7000},
-                new TiposDeTrabajos()  {TipoDeTrabajoId = 10, TiempoEstimado = 50, Descripcion = "Uñas", Precio = 1000},
             });
         }
     }

@@ -13,10 +13,12 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <label>Cita ID:</label>
-                <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="citas.CitaId" class="id-input" min="0"></InputNumber>
-                    <button type="button" class="btn btn-dark oi oi-magnifying-glass" @onclick="Buscar"></button>
+                <div class="col-2">
+                    <label>Id</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="citas.CitaId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label>Colaborador Id:</label>
@@ -29,11 +31,9 @@
                     <InputDate @bind-Value="citas.Fecha" class="form-control"></InputDate>
                     <ValidationMessage For="@(() => citas.Fecha)" />
                 </div>
-                <div class="col-md-6">
-                    <div>
-                        <label>Hora:</label>
-                        <input type="time" @bind="citas.Fecha" format="HH:mm:ss" />
-                    </div>
+                <div class="col-3">
+                    <label>Hora Deseada:</label>
+                    <input type="time" min="08:00" max="18:00" id="Hora" value="@citas.Fecha" class="form-control" >
                 </div>
                 <br />
                 <div class="col-md-6">

@@ -1,15 +1,28 @@
 ﻿@page "/ConsultaEmpleado";
 @inject HttpClient httpClient
 @attribute [Authorize(Roles = "Administrador")]
-<div class="card-header row">
-    <label>Filtrar ID:</label>
-    <div class="col-md-6 input-group filter-input">
-        <InputNumber @bind-Value="Filtro" class="form-control"></InputNumber>
-        <div class="input-group-append">
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <img src="zyroimage.png" class="img-logo" />
+        <h1>Consulta de Empleado</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-3 ">
+            <label>Filtrar ID:</label>
+            <InputNumber @bind-Value="Filtro" class="form-control"></InputNumber>
+        </div>
+
+        <div class="col-md-3 ">
+            <label>Filtrar Nombre:</label>
+            <InputText @bind-Value="Nombre" class="form-control"></InputText>
+        </div>
+
+        <div class="col-md-3 ">
+            <br />
             <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
         </div>
     </div>
-</div>
+
 
 @if (Empleados is not null)
 {
@@ -38,7 +51,7 @@
                         <td>@empleados.Celular</td>
                         <td>@empleados.Email</td>
                         <td>@empleados.Dirección</td>
-                        <td><a href="RegistroEmpleado/@empleados.EmpleadoId">Ver</a></td>
+                        <td><a href="RegistroEmpleado/@empleados.EmpleadoId"><i class="oi oi-pencil"></i></a></td>
                     </tr>
                 }
                 <tr>
@@ -48,7 +61,7 @@
         </table>
     </div>
 }
-
+</div>
 
 @code {
 
@@ -56,7 +69,7 @@
     public List<Empleados>? Empleados { get; set; }
     public Empleados? empleados { get; set; } = new Empleados();
     public int Conteo { get; set; }
-
+    public string? Nombre { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -65,15 +78,10 @@
 
     public async Task Buscar()
     {
-        if (Filtro == 0)
-        {
-            Empleados = await httpClient.GetFromJsonAsync<List<Empleados>>($"api/Empleados");
-        }
-        else
-        {
-            var listaClientes = await httpClient.GetFromJsonAsync<List<Empleados>>($"api/Empleados/");
-            Empleados = listaClientes?.Where(c => c.EmpleadoId == Filtro).ToList();
-        }
+        var listaEmpleados = await httpClient.GetFromJsonAsync<List<Empleados>>($"api/Empleados");
+        Empleados = listaEmpleados?.Where(x => (x.EmpleadoId == Filtro || Filtro == 0) &&
+                                    (string.IsNullOrEmpty(Nombre) || (x.Nombre != null && x.Nombre.ToLower().Contains(Nombre.ToLower()))))
+                                    .ToList();
         Conteo = Empleados != null ? Empleados!.Count() : 0;
         StateHasChanged();
     }

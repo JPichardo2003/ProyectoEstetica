@@ -8,14 +8,16 @@
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header d-flex align-items-center">
-            <img src="AguaMariaLogo.png" class="img-logo" />
+            <img src="zyroimage.png" class="img-logo" />
             <h1>Registro de Empleados</h1>          
         </div>
         <div class="card-body">
-            <label>ID:</label>
-            <div class="input-group">
-                <InputNumber @bind-Value="empleados.EmpleadoId" class="id-input"></InputNumber>
-                <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
+            <div class="col-2">
+                <label>Id</label>
+                <div class="input-group mb-3">
+                    <InputNumber @bind-Value="empleados.EmpleadoId" class="form-control" aria-describedby="BotonBuscar" />
+                    <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
@@ -45,12 +47,12 @@
                 </div>
                 <div class="col-md-6">
                     <label>Teléfono:</label>
-                    <InputText @bind-Value="empleados.Teléfono" class="form-control" placeholder="Ej: 8095877789"></InputText>
+                    <InputText @bind-Value="empleados.Teléfono" class="form-control" placeholder="Ej: 8095877789" maxlength="10"></InputText>
                     <ValidationMessage For="@(() => empleados.Teléfono)" />
                 </div>
                 <div class="col-md-6">
                     <label>Celular:</label>
-                    <InputText @bind-Value="empleados.Celular" class="form-control" placeholder="Ej: 8295877789"></InputText>
+                    <InputText @bind-Value="empleados.Celular" class="form-control" placeholder="Ej: 8295877789" maxlength="10"></InputText>
                     <ValidationMessage For="@(() => empleados.Celular)" />
                 </div>
             </div>

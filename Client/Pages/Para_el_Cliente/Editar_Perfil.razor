@@ -13,12 +13,13 @@
 	<div class="card">
 		<div class="card-header d-flex align-items-center">
 			<img src="zyroimage.png" class="img-logo" />
-			<h1>Customizador de Clientes</h1>
+			<h1>Editar Perfil</h1>
 		</div>
 		<div class="card-body">
-			<label>ID:</label>
+
 			 <AuthorizeView Roles="Administrador" Context="Admin">
 				 <Authorized>
+					<label>ID:</label>
 					<div class="input-group">
 						<InputNumber @bind-Value="cliente.ClienteId" class="id-input"></InputNumber>
 						<button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
@@ -72,14 +73,16 @@
 						</div>
 					</Authorized>
 				</AuthorizeView>
+				
 				<div class="col-md-6">
-					<label>Clave</label>
-					<input type="password" @bind="cliente.Clave" class="form-control"></input>
-					<ValidationMessage For="@(() => cliente.Clave)" />
-				</div>
+                        <label>Contraseña:</label>
+                        <InputText type="password" @bind-Value="cliente.Clave" class="form-control"></InputText>
+                        <ValidationMessage For="@(() => cliente.Clave)" />
+                </div>
+              
 				<div class="col-md-6">
 					<label>Tel&eacute;fono:</label>
-					<InputText @bind-Value="cliente.Teléfono" class="form-control"></InputText>
+					<InputText @bind-Value="cliente.Teléfono" class="form-control" maxlength></InputText>
 					<ValidationMessage For="@(() => cliente.Teléfono)" />
 				</div>
 			</div>
@@ -90,7 +93,7 @@
 			<button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
 				</Authorized>
 			</AuthorizeView>
-			<button type="button" class="btn btn-outline-warning" @onclick="Modificar">Modificar <i class="oi oi-pencil" /></button>
+			<button type="submit" class="btn btn-outline-warning">Modificar <i class="oi oi-pencil" /></button>
 			<AuthorizeView Roles="Administrador">
 				<Authorized Context="Admin">
 					<button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
@@ -109,7 +112,7 @@
 
 	public Clientes cliente { get; set; } = new Clientes();
 	AuthenticationState usuario;
-
+	bool VerContraseña = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -198,7 +201,8 @@
 					Duration = 4_000
 				};
 			notificationService.Notify(mensaje);
-			this.Nuevo();
+			Nuevo();
+			await Buscar();
 		}
 		else
 		{
@@ -249,4 +253,16 @@
 		}
 		Nuevo();
 	}
+
+	public async Task CambiarVerContraseña()
+    {
+        if (VerContraseña == false)
+        {
+            VerContraseña = true;
+        }
+        else
+        {
+            VerContraseña = false;
+        }
+    }
 }

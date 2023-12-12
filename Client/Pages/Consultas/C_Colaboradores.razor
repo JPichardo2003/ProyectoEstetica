@@ -1,68 +1,70 @@
 ﻿@page "/C_Colaboradores"
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-
-<div class="card-header">
-    <h2>Consulta de colaboradores</h2>
-</div>
-
-<div class='row'>
-    @* Filtro *@
-    <div class='col-md-4'>
-        <label>Filtro</label>
-        <div class="filter-box">
-            <InputSelect class="form-select" @bind-Value="opcion">
-                <option value=0>Sin filtro</option>
-                <option value=1>Colaborador Id</option>
-                <option value=2>Nombre</option>
-            </InputSelect>
-        </div>
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <img src="zyroimage.png" class="img-logo" />
+        <h1>Consulta de Colaboradores</h1>
     </div>
 
-    <div class='col-md-6'>
-        @* Criterio *@
-        <label>Criterio</label>
-        <div class="col-md-6">
-            <div class="input-group mb-3">
-                <input id="c_search" type="text" class="form-control" @bind="criterio" disabled="@activarCriterio" />
-                <button type="button" class="btn btn-info oi oi-magnifying-glass" @onclick="Filtrar"></button>
+    <div class='row'>
+        @* Filtro *@
+        <div class='col-md-4'>
+            <label>Filtro</label>
+            <div class="filter-box">
+                <InputSelect class="form-select" @bind-Value="opcion">
+                    <option value=0>Sin filtro</option>
+                    <option value=1>Colaborador Id</option>
+                    <option value=2>Nombre</option>
+                </InputSelect>
+            </div>
+        </div>
+
+        <div class='col-md-6'>
+            @* Criterio *@
+            <label>Criterio</label>
+            <div class="col-md-6">
+                <div class="input-group mb-3">
+                    <input id="c_search" type="text" class="form-control" @bind="criterio" disabled="@activarCriterio" />
+                    <button type="button" class="btn btn-info oi oi-magnifying-glass" @onclick="Filtrar"></button>
+                </div>
             </div>
         </div>
     </div>
-</div>
             
-            <button type="button" class="btn btn-outline-primary oi oi-reload" @onclick="ReiniciarFiltro"></button>
+                <button type="button" class="btn btn-outline-primary oi oi-reload" @onclick="ReiniciarFiltro"></button>
            
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Colaborador Id</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Email</th>
-            <th>Dirección</th>
-            <th>Celular</th>
-            <th>Activo</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in L_Colaboradores)
-        {
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td>@item.ColaboradorId</td>
-                <td>@item.Nombre</td>
-                <td>@item.Apellido</td>
-                <td>@item.Email</td>
-                <td>@item.Dirección</td>
-                <td>@item.Celular</td>
-                <td>@item.Activo</td>
-
-                <td><a href="/RegistroColaborador/@item.ColaboradorId"> Ver</a></td>
+                <th>Colaborador Id</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Celular</th>
+                <th>Activo</th>
+                <th>Editar</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in L_Colaboradores)
+            {
+                <tr>
+                    <td>@item.ColaboradorId</td>
+                    <td>@item.Nombre</td>
+                    <td>@item.Apellido</td>
+                    <td>@item.Email</td>
+                    <td>@item.Dirección</td>
+                    <td>@item.Celular</td>
+                    <td>@item.Activo</td>
 
+                    <td><a href="/RegistroColaborador/@item.ColaboradorId"><i class="oi oi-pencil"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 @code {
     public List<Colaboradores> L_Colaboradores { get; set; } = new List<Colaboradores>();
     public int opcion { get; set; }

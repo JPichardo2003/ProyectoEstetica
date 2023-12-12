@@ -1,11 +1,27 @@
 ﻿@page "/c_cliente"
 @inject HttpClient httpClient
 
-<div class="card">
-    <div class="card">
 
-        <div class="card-header">
-            <h3> Lista de Clientes  </h3>
+<div class="card">
+        <div class="card-header d-flex align-items-center">
+            <img src="zyroimage.png" class="img-logo" />
+            <h1>Consulta de Clientes</h1>
+        </div>
+        <div class="row">
+            <div class="col-md-3 ">
+                <label>Filtrar ID:</label>
+                <InputNumber @bind-Value="Filtro" class="form-control"></InputNumber>
+            </div>
+
+            <div class="col-md-3 ">
+                <label>Filtrar Nombre:</label>
+                <InputText @bind-Value="Nombre" class="form-control"></InputText>
+            </div>
+
+            <div class="col-md-3 ">
+                <br />
+                <button type="button" class="btn btn-outline-primary oi oi-magnifying-glass" @onclick="Buscar"></button>
+            </div>
         </div>
 
         @if (ListaClientes is not null)
@@ -42,13 +58,13 @@
 
             </table>
         }
-    </div>
 </div>
 
 @code {
     public List<Clientes>? ListaClientes { get; set; }
     public int conteo { get; set; }
-
+    public string? Nombre { get; set; }
+    public int Filtro { get; set; }
     protected override async Task OnInitializedAsync()
     {
         await Buscar();
@@ -56,8 +72,11 @@
 
     public async Task Buscar()
     {
-        ListaClientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
-
+        var ListaClientesTemporal = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
+        ListaClientes = ListaClientesTemporal?
+                    .Where(x => (x.ClienteId == Filtro || Filtro == 0) &&
+                                (string.IsNullOrEmpty(Nombre) || (x.Nombre != null && x.Nombre.ToLower().Contains(Nombre.ToLower()))))
+                    .ToList();
         conteo = ListaClientes != null ? ListaClientes!.Count() : 0;
         StateHasChanged();
     }
